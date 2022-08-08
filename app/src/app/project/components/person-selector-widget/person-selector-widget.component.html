@@ -1,0 +1,24 @@
+<div class="person-selector-widget">
+  <!-- Selected Persons -->
+  <div class="mb-3">
+    <div *ngFor="let person of persons" class="inline-block p-1 m-1 mt-0 bg-blue-ptg-secondary-060 rounded-[20px]">
+      <div class="flex items-center">
+        <span class="font-semibold mr-2">{{ person.name }}</span>
+        <mat-icon
+          aria-hidden="false"
+          [attr.aria-label]="'project.personSelectorWidget.removePersonAriaLabel' | translate"
+          class="text-base text-neutral-400 cursor-pointer delete-icon"
+          (click)="removePerson(person)"
+        >
+          close
+        </mat-icon>
+      </div>
+    </div>
+  </div>
+  <!-- Link New Person Button -->
+  <div>
+    <button type="button" mat-stroked-button (click)="clickOpenPersonSelector()">
+      {{ 'project.personSelectorWidget.linkPerson' | translate }}
+    </button>
+  </div>
+</div>

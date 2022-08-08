@@ -1,0 +1,57 @@
+<section class="folder-form h-full relative">
+  <form [formGroup]="form" *ngIf="form" class="h-full flex flex-col justify-between">
+    <div class="fields-list">
+      <div class="flex">
+        <div class="w-1/2">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'project.folderForm.name' | translate }}</mat-label>
+            <input
+              type="text"
+              [placeholder]="'project.folderForm.pickName' | translate"
+              [attr.aria-label]="'project.folderForm.name' | translate"
+              matInput
+              formControlName="name"
+              [matAutocomplete]="auto"
+            />
+            <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+              <mat-option
+                *ngFor="let folder of filteredFolders$ | async"
+                [value]="folder.name"
+                (mouseover)="onFolderMouseOver($event, folder)"
+                (mouseout)="onFolderMouseOver($event)"
+              >
+                {{ folder.name }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="form.get('name')?.hasError('nameAlreadyExists')">
+              {{ 'project.folderForm.nameAlreadyInUse' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div class="w-1/2 text-gray-500 ml-3">{{ hoveredStandardFolder?.comment }}</div>
+      </div>
+
+      <div>
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'project.folderForm.comment' | translate }}</mat-label>
+          <textarea matInput formControlName="comment" rows="5" cdkFocusInitial></textarea>
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-label class="font-semibold" [class.text-red-ptg-alert]="isScopesInvalid">{{
+          'project.folderForm.scopesList' | translate
+        }}</mat-label>
+        <parteng-error-block
+          *ngIf="isScopesInvalid"
+          [error]="'project.folderForm.atLeastOneScopeRequired' | translate"
+        ></parteng-error-block>
+        <parteng-scope-selector-widget
+          [initialScopes]="extractFolderScopes(folder.relFolderToScopes)"
+          (selectedScopesChanged)="onSelectedScopesChanged($event)"
+        ></parteng-scope-selector-widget>
+      </div>
+    </div>
+    <!-- .fields-list -->
+  </form>
+</section>

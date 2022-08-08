@@ -1,0 +1,33 @@
+{{- if .Values.ingress.enabled -}}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ template "app.name" . }}
+  labels:
+    app: "{{ .Chart.Name }}"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+{{- with .Values.ingress.annotations }}
+  annotations:
+    {{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`{{ .Values.ingress.host }}`) && PathPrefix(`{{ .Values.ingress.path | default "/" }}`)
+      kind: Rule
+      services:
+        - name: svc-{{ template "app.name" . }}
+          kind: Service
+          port: {{ .Values.httpPort | default "80" }}
+          scheme: http
+          namespace: {{ .Release.Namespace }}
+{{- if .Values.ingress.path }}
+      middlewares:
+        - name: "{{ .Values.backendName }}-stripprefix"
+{{- end }}
+  tls:
+    certResolver: le
+{{- end }}

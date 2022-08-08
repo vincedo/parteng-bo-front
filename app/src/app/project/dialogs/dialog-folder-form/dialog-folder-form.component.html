@@ -1,0 +1,19 @@
+<section class="dialog-folder-form">
+  <parteng-dialog
+    [title]="'project.dialogFolderSelector.title' | translate"
+    [description]="'project.dialogFolderSelector.description' | translate"
+    [isSubmitDisabled]="!isDirty"
+    (safeClose)="safeCloseDialog()"
+    (cancel)="closeDialog()"
+    (submit)="triggerFormSubmit()"
+  >
+    <parteng-folder-form
+      [folder]="dialogData.folder"
+      [isNew]="dialogData.isNew"
+      [existingFolderNames]="dialogData.existingProjectFolderNames"
+      [allStandardFolders]="dialogData.allStandardFolders"
+      (scopesChanged)="onFolderScopesChanged()"
+      (formSubmitted)="onFormSubmitted($event)"
+    ></parteng-folder-form>
+  </parteng-dialog>
+</section>

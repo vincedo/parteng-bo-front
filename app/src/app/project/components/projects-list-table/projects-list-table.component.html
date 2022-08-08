@@ -1,0 +1,91 @@
+<table
+  mat-table
+  [dataSource]="dataSource"
+  matSort
+  [trackBy]="trackProjectById"
+  [fixedLayout]="true"
+  class="w-full projects-list-table"
+>
+  <!-- COLUMN Templates (TH/TD) -->
+  <!-- ID -->
+  <ng-container matColumnDef="id">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-blue-ptg-secondary-500 w-[75px]">
+      {{ 'project.pageProjectsList.projectsTable.columnId' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let project">
+      {{ project.id }}
+    </td>
+  </ng-container>
+  <!-- Name -->
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-blue-ptg-secondary-500">
+      {{ 'project.pageProjectsList.projectsTable.columnName' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let project">
+      {{ project.name }}
+    </td>
+  </ng-container>
+  <!-- Scopes -->
+  <ng-container matColumnDef="scopeCodesStr">
+    <th mat-header-cell *matHeaderCellDef class="text-blue-ptg-secondary-500">
+      {{ 'project.pageProjectsList.projectsTable.columnScopes' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let project">
+      {{ project.scopeCodesStr }}
+    </td>
+  </ng-container>
+  <!-- Ordinary -->
+  <ng-container matColumnDef="ordinary">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-blue-ptg-secondary-500">
+      {{ 'project.pageProjectsList.projectsTable.columnOrdinary' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let project" class="text-blue-ptg-secondary-500 text-xl">
+      {{ project.ordinary ? '●' : '○' }}
+    </td>
+  </ng-container>
+  <!-- Start Date -->
+  <ng-container matColumnDef="date_min">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-blue-ptg-secondary-500">
+      {{ 'project.pageProjectsList.projectsTable.columnDateMin' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let project">
+      {{ (project.date_min | date: 'shortDate') || '-' }}
+    </td>
+  </ng-container>
+  <!-- End Date -->
+  <ng-container matColumnDef="date_max">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-blue-ptg-secondary-500">
+      {{ 'project.pageProjectsList.projectsTable.columnDateMax' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let project">
+      {{ (project.date_max | date: 'shortDate') || '-' }}
+    </td>
+  </ng-container>
+  <!-- Validation Status -->
+  <ng-container matColumnDef="validation_status">
+    <th mat-header-cell *matHeaderCellDef class="text-blue-ptg-secondary-500 w-[50px]">
+      {{ 'project.pageProjectsList.projectsTable.columnStatus' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let project" class="text-xl text-neutral-400">
+      <mat-icon
+        aria-hidden="false"
+        [inline]="true"
+        [matTooltip]="
+          (isValidated(project) ? 'shared.tooltips.tooltipValidated' : 'shared.tooltips.tooltipNotValidated')
+            | translate
+        "
+        >{{ isValidated(project) ? 'lock' : 'lock_open' }}</mat-icon
+      >
+    </td>
+  </ng-container>
+
+  <!-- ROW Templates (TR) -->
+  <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="h-9"></tr>
+  <tr
+    mat-row
+    *matRowDef="let row; columns: displayedColumns"
+    (click)="clickRow(row)"
+    class="select-none cursor-pointer"
+    [class.bg-neutral-100]="isHighlighted(row)"
+  ></tr>
+</table>

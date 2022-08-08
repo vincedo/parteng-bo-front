@@ -1,0 +1,8 @@
+{
+  "/api/rest/v1": {
+    "target": "http://api.parteng.test",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true
+  }
+}

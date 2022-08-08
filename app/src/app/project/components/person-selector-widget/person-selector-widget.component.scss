@@ -1,0 +1,9 @@
+.person-selector-widget {
+  $delete-icon-size: 16px;
+
+  .delete-icon {
+    height: $delete-icon-size;
+    line-height: $delete-icon-size;
+    width: $delete-icon-size;
+  }
+}

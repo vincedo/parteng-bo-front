@@ -1,0 +1,14 @@
+<div
+  class="transfer-form-block p-4 mt-8 mb-2 border rounded-md"
+  [ngClass]="{ 'border-neutral-300': !active, 'border-blue-ptg-secondary-500': active }"
+>
+  <h2 class="text-base uppercase pl-3 border-l-[3px] border-blue-ptg-secondary-500">
+    {{ title }}
+  </h2>
+  <p *ngIf="isDisabled; else showContent" class="text-sm italic">
+    {{ 'dataEntry.pageTransferForm.blockDisabledMessage' | translate }}
+  </p>
+  <ng-template #showContent>
+    <ng-content></ng-content>
+  </ng-template>
+</div>

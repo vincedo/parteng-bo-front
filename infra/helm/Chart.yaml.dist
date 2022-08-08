@@ -1,0 +1,10 @@
+apiVersion: v2
+name: parteng-bo-front-chart
+version: ${version}
+description: Meta-chart used to deploy parteng-bo front service
+annotations:
+  commitId: ${commitId}
+dependencies: # A list of the chart requirements (optional)
+  - name: parteng-chart
+    repository: https://registry.gitlab.com/arpilabe/parteng-api/
+    version: 0.3.5-alpha

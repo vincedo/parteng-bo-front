@@ -1,0 +1,22 @@
+<section class="dialog-project-selector h-full" *ngIf="projectsListState$ | async as state">
+  <parteng-dialog
+    *ngIf="projectsListState$ | async as state"
+    [title]="'project.dialogProjectSelector.title' | translate"
+    [description]="'project.dialogProjectSelector.description' | translate"
+    [headerHeight]="dialogHeaderHeight + 'px'"
+    [buttonsHeight]="dialogButtonsHeight + 'px'"
+    [isSubmitDisabled]="!state.highlightedProject"
+    (safeClose)="safeCloseDialog()"
+    (cancel)="closeDialog()"
+    (submit)="gotoSelectedProject(state.highlightedProject)"
+  >
+    <div [style.height]="'calc(98% - ' + dialogHeaderHeight + 'px)'">
+      <parteng-projects-list
+        [allProjects]="state.allProjects"
+        [highlightedProject]="state.highlightedProject"
+        [statusFilter]="defaultStatusFilter"
+        (projectClicked)="onProjectClicked($event)"
+      ></parteng-projects-list>
+    </div>
+  </parteng-dialog>
+</section>

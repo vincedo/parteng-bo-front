@@ -1,0 +1,19 @@
+<section class="dialog-goal-selector" *ngIf="state$ | async as state">
+  <parteng-dialog
+    [title]="'project.dialogGoalSelector.title' | translate"
+    [description]="'project.dialogGoalSelector.description' | translate"
+    submitBtnTranslateKey="project.dialogGoalSelector.validateBtn"
+    [isSubmitDisabled]="checkboxList.noSelectedGoals || !checkboxList.isDirty"
+    (safeClose)="safeCloseDialog()"
+    (cancel)="closeDialog()"
+    (submit)="checkboxList.submitSelectedGoals()"
+  >
+    <parteng-goal-list-checkboxes
+      #checkboxList
+      [allGoals]="state.allGoals"
+      [selectedGoals]="state.selectedGoals"
+      (selectedGoalsChanged)="onSelectedGoalsChanged()"
+      (selectedGoalsSubmitted)="submitSelectedGoals($event)"
+    ></parteng-goal-list-checkboxes>
+  </parteng-dialog>
+</section>

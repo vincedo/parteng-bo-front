@@ -1,0 +1,245 @@
+<section class="person-form">
+  <parteng-error-block [error]="backendError"></parteng-error-block>
+
+  <form [formGroup]="form" *ngIf="form" (ngSubmit)="submit()">
+    <ng-container [ngSwitch]="person.person_type">
+      <!-- Natural Person -->
+      <ng-container *ngSwitchCase="PERSON_TYPE.NATURAL_PERSON">
+        <parteng-dynamic-input
+          [label]="'project.personForm.3.lastName' | translate"
+          [mode]="mode === 'create' || mode === 'edit' ? 'input' : 'editable'"
+          [readonly]="mode === 'view'"
+          [displayValue]="form.get('last_name')!.value"
+        >
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ 'project.personForm.3.lastName' | translate }}</mat-label>
+            <input matInput formControlName="last_name" cdkFocusInitial />
+          </mat-form-field>
+        </parteng-dynamic-input>
+        <parteng-dynamic-input
+          [label]="'project.personForm.3.firstName' | translate"
+          [mode]="mode === 'create' || mode === 'edit' ? 'input' : 'editable'"
+          [readonly]="mode === 'view'"
+          [displayValue]="form.get('first_name')!.value"
+        >
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ 'project.personForm.3.firstName' | translate }}</mat-label>
+            <input matInput formControlName="first_name" />
+          </mat-form-field>
+        </parteng-dynamic-input>
+        <parteng-dynamic-input
+          [label]="'project.personForm.3.shortName' | translate"
+          [mode]="mode === 'create' || mode === 'edit' ? 'input' : 'editable'"
+          [readonly]="mode === 'view'"
+          [displayValue]="form.get('short_name')!.value"
+        >
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ 'project.personForm.3.shortName' | translate }}</mat-label>
+            <input matInput formControlName="short_name" />
+          </mat-form-field>
+        </parteng-dynamic-input>
+      </ng-container>
+
+      <!-- Legal Person -->
+      <ng-container *ngSwitchCase="PERSON_TYPE.LEGAL_PERSON">
+        <parteng-dynamic-input
+          [label]="'project.personForm.2.companyName' | translate"
+          [mode]="mode === 'create' || mode === 'edit' ? 'input' : 'editable'"
+          [readonly]="mode === 'view'"
+          [displayValue]="form.get('company_name')!.value"
+        >
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ 'project.personForm.2.companyName' | translate }}</mat-label>
+            <input matInput formControlName="company_name" cdkFocusInitial />
+          </mat-form-field>
+        </parteng-dynamic-input>
+
+        <parteng-dynamic-input
+          [label]="'project.personForm.2.shortName' | translate"
+          [mode]="mode === 'create' || mode === 'edit' ? 'input' : 'editable'"
+          [readonly]="mode === 'view'"
+          [displayValue]="form.get('short_name')!.value"
+        >
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ 'project.personForm.2.shortName' | translate }}</mat-label>
+            <input matInput formControlName="short_name" />
+          </mat-form-field>
+        </parteng-dynamic-input>
+
+        <parteng-dynamic-input
+          [label]="'project.personForm.2.registrationPending' | translate"
+          [mode]="mode === 'create' || mode === 'edit' ? 'input' : 'editable'"
+          [readonly]="mode === 'view'"
+          [displayValue]="!form.get('legal_entity_identifier')!.value ? 'Oui' : 'Non'"
+        >
+          <div class="mx-1 mt-2 mb-5">
+            <mat-checkbox
+              class="example-margin"
+              formControlName="legal_entity_pending_registration"
+              (change)="onRegistrationPendingChanged($event)"
+            >
+              {{ 'project.personForm.2.registrationPending' | translate }}
+            </mat-checkbox>
+          </div>
+        </parteng-dynamic-input>
+
+        <parteng-dynamic-input
+          [label]="'project.personForm.2.country' | translate"
+          [mode]="mode === 'create' || mode === 'edit' ? 'input' : 'editable'"
+          [readonly]="mode === 'view'"
+          [displayValue]="form.get('legal_entity_country_code')!.value"
+        >
+          <div class="field-country pb-6">
+            <mat-form-field appearance="fill" class="w-full">
+              <mat-label>{{ 'project.personForm.2.country' | translate }}</mat-label>
+              <input matInput formControlName="legal_entity_country_code" value="FR" maxlength="2" />
+              <mat-hint>
+                <span
+                  class="text-sm"
+                  [innerHTML]="
+                    'project.personForm.2.countryHint'
+                      | translate: { isoCodesUrl: 'https://fr.wikipedia.org/wiki/ISO_3166-1#Table_de_codage' }
+                  "
+                ></span>
+              </mat-hint>
+            </mat-form-field>
+          </div>
+        </parteng-dynamic-input>
+
+        <parteng-dynamic-input
+          [label]="'project.personForm.2.identifier' | translate"
+          [mode]="mode === 'create' || mode === 'edit' ? 'input' : 'editable'"
+          [readonly]="mode === 'view'"
+          [displayValue]="form.get('legal_entity_identifier')!.value"
+        >
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ 'project.personForm.2.identifier' | translate }}</mat-label>
+            <input matInput formControlName="legal_entity_identifier" />
+          </mat-form-field>
+        </parteng-dynamic-input>
+
+        <parteng-dynamic-input
+          [label]="'project.personForm.2.legalEntityType' | translate"
+          [mode]="mode === 'create' || mode === 'edit' ? 'input' : 'editable'"
+          [readonly]="mode === 'view'"
+          [displayValue]="getEntityTypeName(form.get('legal_entity_types_id')!.value)"
+        >
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ 'project.personForm.2.legalEntityType' | translate }}</mat-label>
+            <mat-select required formControlName="legal_entity_types_id">
+              <mat-option value="">---</mat-option>
+              <mat-option *ngFor="let legalEntityType of allLegalEntityTypes" [value]="legalEntityType.id">
+                {{ legalEntityType.short_name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </parteng-dynamic-input>
+      </ng-container>
+
+      <!-- Investment Fund -->
+      <ng-container *ngSwitchCase="PERSON_TYPE.INVESTMENT_FUND">
+        <parteng-dynamic-input
+          [label]="'project.personForm.1.companyName' | translate"
+          [mode]="mode === 'create' || mode === 'edit' ? 'input' : 'editable'"
+          [readonly]="mode === 'view'"
+          [displayValue]="form.get('company_name')!.value"
+        >
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ 'project.personForm.1.companyName' | translate }}</mat-label>
+            <input matInput formControlName="company_name" cdkFocusInitial />
+          </mat-form-field>
+        </parteng-dynamic-input>
+
+        <parteng-dynamic-input
+          [label]="'project.personForm.1.shortName' | translate"
+          [mode]="mode === 'create' || mode === 'edit' ? 'input' : 'editable'"
+          [readonly]="mode === 'view'"
+          [displayValue]="form.get('short_name')!.value"
+        >
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ 'project.personForm.1.shortName' | translate }}</mat-label>
+            <input matInput formControlName="short_name" />
+          </mat-form-field>
+        </parteng-dynamic-input>
+
+        <parteng-dynamic-input
+          [label]="'project.personForm.1.fundType' | translate"
+          [mode]="mode === 'create' || mode === 'edit' ? 'input' : 'editable'"
+          [readonly]="mode === 'view'"
+          [displayValue]="getFundTypeName(form.get('fund_types_id')!.value)"
+        >
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ 'project.personForm.1.fundType' | translate }}</mat-label>
+            <mat-select required formControlName="fund_types_id">
+              <mat-option value="">---</mat-option>
+              <mat-option *ngFor="let fundType of allFundTypes" [value]="fundType.id">
+                {{ fundType.short_name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </parteng-dynamic-input>
+
+        <parteng-dynamic-input
+          [label]="'project.personForm.1.fundManager' | translate"
+          [mode]="mode === 'create' || mode === 'edit' ? 'input' : 'editable'"
+          [readonly]="mode === 'view'"
+          [displayValue]="getFundManager(form.get('fund_manager_id')?.value)?.name"
+        >
+          <div class="mb-4">
+            <ng-container *ngIf="form.get('fund_manager_id')?.value">
+              <div class="text-xs text-neutral-500">{{ 'project.personForm.1.fundManager' | translate }}</div>
+              <div class="mb-3 font-semibold">
+                {{ getFundManager(form.get('fund_manager_id')?.value)?.name }}
+              </div>
+            </ng-container>
+            <button type="button" mat-stroked-button class="w-full" (click)="selectFundManager()">
+              {{
+                (getFundManager(form.get('fund_manager_id')?.value)
+                  ? 'project.personForm.1.changeFundManager'
+                  : 'project.personForm.1.addFundManager'
+                ) | translate
+              }}
+            </button>
+          </div>
+        </parteng-dynamic-input>
+      </ng-container>
+    </ng-container>
+    <div>
+      <parteng-dynamic-input
+        [label]="'project.personForm.3.comment' | translate"
+        [mode]="mode === 'create' || mode === 'edit' ? 'input' : 'editable'"
+        [readonly]="mode === 'view'"
+        [displayValue]="form.get('comment')!.value"
+      >
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>{{ 'project.personForm.3.comment' | translate }}</mat-label>
+          <textarea [readonly]="mode === 'view'" matInput formControlName="comment" rows="5"></textarea>
+        </mat-form-field>
+      </parteng-dynamic-input>
+    </div>
+    <div class="pt-2 flex justify-end">
+      <!-- cancel / back button -->
+      <button type="button" class="ml-4" (click)="cancel.emit()">
+        {{ 'shared.personDialog.back_' + mode | translate }}
+      </button>
+      <!-- delete button -->
+      <button
+        *ngIf="mode === 'view' && showDeleteButton"
+        type="button"
+        class="ml-4"
+        mat-stroked-button
+        color="warn"
+        (click)="onDeleteButtonClick()"
+        parteng-requires-permission="delete"
+        parteng-requires-resource="projects"
+        data-testId="person-delete-button"
+      >
+        {{ 'shared.buttonLabels.delete' | translate }}
+      </button>
+      <!-- submit button -->
+      <button *ngIf="mode === 'create' || mode === 'edit'" class="ml-4" type="submit" mat-raised-button color="primary">
+        {{ 'shared.buttonLabels.validate_' + mode | translate }}
+      </button>
+    </div>
+  </form>
+</section>

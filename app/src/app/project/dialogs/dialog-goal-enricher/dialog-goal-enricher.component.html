@@ -1,0 +1,16 @@
+<section class="dialog-goal-enricher">
+  <parteng-dialog
+    [title]="'project.dialogGoalEnricher.title' | translate: { goalName: relProjectToGoal.goal.name }"
+    [description]="'project.dialogGoalEnricher.description' | translate"
+    [isSubmitDisabled]="!isDirty"
+    (safeClose)="safeCloseDialog()"
+    (cancel)="closeDialog()"
+    (submit)="triggerFormSubmit()"
+  >
+    <parteng-goal-enricher-form
+      [relProjectToGoal]="relProjectToGoal"
+      (personsChanged)="onGoalPersonsChanged()"
+      (formSubmitted)="onFormSubmitted($event)"
+    ></parteng-goal-enricher-form>
+  </parteng-dialog>
+</section>

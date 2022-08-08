@@ -1,0 +1,23 @@
+<div class="columns-3">
+  <div *ngFor="let goal of allGoals; let i = index" class="flex justify-between bg-neutral-100 p-1 mb-1">
+    <div class="flex-auto text-sm">
+      <mat-checkbox [checked]="isSelected(goal)" [value]="goal.id.toString()" (change)="toggleCheckbox($event)">{{
+        goal.name
+      }}</mat-checkbox>
+    </div>
+    <!-- Tooltip -->
+    <mat-icon
+      *ngIf="goal.comment"
+      aria-hidden="false"
+      [attr.aria-label]="'project.dialogGoalSelector.infoIconAriaLabel' | translate"
+      [matTooltip]="goal.comment"
+      class="cursor-pointer text-neutral-500"
+      >info_outlined</mat-icon
+    >
+  </div>
+</div>
+<!-- Error -->
+<parteng-error-block
+  *ngIf="isDirty && noSelectedGoals"
+  [error]="'project.dialogGoalSelector.atLeastOneGoalRequired' | translate"
+></parteng-error-block>

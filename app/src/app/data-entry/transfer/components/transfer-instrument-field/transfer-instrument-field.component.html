@@ -1,0 +1,68 @@
+<div
+  class="flex transfer-instrument-field p-4 mb-4 rounded border"
+  [ngClass]="isActive ? 'border-blue-ptg-primary' : 'border-neutral-300'"
+>
+  <!-- Instrument -->
+  <div class="w-80">
+    <ng-container *ngIf="transferInstrument?.$instrument; else selectInstrumentBtn">
+      <div class="text-xs text-blue-ptg-primary flex items-center">
+        <span class="ptg-required">{{ instrumentField.instrumentInfo.designation }}</span>
+        <mat-icon
+          *ngIf="instrumentField.isEditable && isEditable"
+          aria-hidden="false"
+          [attr.aria-label]="'dataEntry.pageTransferForm.instrumentsBlock.selectInstrument' | translate"
+          class="text-neutral-400 cursor-pointer ml-2"
+          (click)="clickOpenInstrumentSelector(index)"
+          >edit</mat-icon
+        >
+      </div>
+      <div class="text-sm font-semibold">{{ transferInstrument.$instrument.name }}</div>
+    </ng-container>
+    <ng-template #selectInstrumentBtn>
+      <button
+        type="button"
+        mat-stroked-button
+        (click)="clickOpenInstrumentSelector(index)"
+        class="py-2 px-10 ptg-required"
+      >
+        {{ instrumentField.instrumentInfo.designation }}
+      </button>
+    </ng-template>
+  </div>
+
+  <!-- Ownership Type -->
+  <div class="w-80">
+    <ng-container
+      *ngIf="transferInstrument?.$ownershipType && !forceOwnershipTypeEditable; else selectOwnershipTypeDropdown"
+    >
+      <div class="text-xs text-blue-ptg-primary" flex items-center>
+        <span class="ptg-required">{{ 'dataEntry.pageTransferForm.instrumentsBlock.ownershipType' | translate }}</span>
+        <!-- editable only if there is more than one possible ownership type -->
+        <mat-icon
+          *ngIf="instrumentField.isEditable && instrumentField.allowedOwnershipTypes.length > 1"
+          aria-hidden="false"
+          [attr.aria-label]="'dataEntry.pageTransferForm.instrumentsBlock.selectOwnershipType' | translate"
+          class="text-neutral-400 cursor-pointer ml-2"
+          (click)="makeOwnershipTypeEditable()"
+          >edit</mat-icon
+        >
+      </div>
+      <div class="text-sm font-semibold">{{ transferInstrument?.$ownershipType?.name }}</div>
+    </ng-container>
+    <ng-template #selectOwnershipTypeDropdown>
+      <mat-form-field appearance="outline">
+        <mat-label class="ptg-required">{{
+          'dataEntry.pageTransferForm.instrumentsBlock.ownershipType' | translate
+        }}</mat-label>
+        <mat-select
+          [disabled]="instrumentField.allowedOwnershipTypes.length === 0"
+          (selectionChange)="clickSelectOwnershipTypeForInstrument($event, index)"
+        >
+          <mat-option *ngFor="let ownershipType of instrumentField.allowedOwnershipTypes" [value]="ownershipType.id">
+            {{ ownershipType.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </ng-template>
+  </div>
+</div>

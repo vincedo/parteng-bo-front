@@ -1,0 +1,28 @@
+<div
+  class="flex transfer-person-field p-4 mb-4 rounded border"
+  [ngClass]="isActive ? 'border-blue-ptg-primary' : 'border-neutral-300'"
+>
+  <div class="w-80">
+    <ng-container *ngIf="transferPerson?.$person; else selectPersonBtn">
+      <div class="text-xs text-blue-ptg-primary" flex items-center>
+        <span class="ptg-required">{{ personField.personQualityStr }}</span>
+        <mat-icon
+          *ngIf="isEditable"
+          aria-hidden="false"
+          [attr.aria-label]="'dataEntry.pageTransferForm.personsBlock.selectPerson' | translate"
+          class="text-neutral-400 cursor-pointer ml-2"
+          (click)="clickOpenPersonSelector(index)"
+          parteng-requires-permission="update"
+          parteng-requires-resource="transfers"
+          >edit</mat-icon
+        >
+      </div>
+      <div class="text-sm font-semibold">{{ transferPerson.$person.name }}</div>
+    </ng-container>
+    <ng-template #selectPersonBtn>
+      <button type="button" mat-stroked-button (click)="clickOpenPersonSelector(index)" class="py-2 px-10 ptg-required">
+        {{ personField.personQualityStr }}
+      </button>
+    </ng-template>
+  </div>
+</div>

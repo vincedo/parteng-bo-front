@@ -1,0 +1,681 @@
+{
+  "shared": {
+    "saveSuccess": "Sauvegarde effectuée avec succès",
+    "saveFail": "Erreur durant la sauvegarde",
+    "createSuccess": "Création effectuée avec succès",
+    "createFail": "Erreur durant la création",
+    "updateSuccess": "Mise à jour effectuée avec succès",
+    "updateFail": "Erreur durant la mise à jour",
+    "deleteSuccess": "Suppression effectuée avec succès",
+    "deleteFail": "Erreur durant la suppression",
+    "savePerson": {
+      "success": "Personne sauvegardée avec succès",
+      "fail": "Une erreur est survenue lors de la sauvegarde de la personne"
+    },
+    "saveScope": {
+      "success": "Périmètre sauvegardé avec succès",
+      "fail": "Une erreur est survenue lors de la sauvegarde du périmètre"
+    },
+    "deleteScope": {
+      "success": "Périmètre supprimé avec succès",
+      "fail": "Une erreur est survenue lors de la suppression du périmètre"
+    },
+    "invalidValue": "Cette valeur est invalide.",
+    "header": {
+      "infoIconAriaLabel": "Plus d'informations sur les versions Front et API",
+      "versionAndCommitHashes": "Versions & Commit hashes"
+    },
+    "breadcrumb": {
+      "homeIconAriaLabel": "Retourner à la page d'accueil"
+    },
+    "buttonLabels": {
+      "cancel": "Annuler",
+      "goBack": "Retour",
+      "confirm": "Confirmer",
+      "delete": "Supprimer",
+      "validate": "Valider",
+      "validate_create": "Valider",
+      "validate_edit": "Valider les modifications",
+      "validateSelection": "Valider la sélection",
+      "validateAndCreateAgain": "Valider et ajouter à nouveau",
+      "createAgain": "Ajouter à nouveau",
+      "select": "Sélectionner"
+    },
+    "dialog": {
+      "closeAriaLabel": "Fermer la fenêtre"
+    },
+    "dialogCloseWarning": {
+      "title": "Attention !",
+      "text": "Vous allez fermer cette fenêtre sans avoir validé les modifications en cours.<br/>Les informations que vous avez saisies seront perdues."
+    },
+    "dialogLeaveWarning": {
+      "title": "Attention !",
+      "text": "Vous allez quitter cette page sans avoir validé les informations que vous avez renseignées.<br/>Les informations que vous avez saisies seront perdues."
+    },
+    "dialogPersonSelector": {
+      "title": "___DEFINE_THIS_KEY_IN_A_MORE_SPECIALIZED_DIALOG_ID___",
+      "description": "___DEFINE_THIS_KEY_IN_A_MORE_SPECIALIZED_DIALOG_ID___",
+      "selectedItemsTitle": "Personne(s) sélectionnée(s)",
+      "selectedItemsDescription": "Vous devez sélectionner au moins une personne avant de valider.",
+      "itemAdditionalInfoTitle": "Informations complémentaires",
+      "legalEntityIdentifier": "Identifiant : {{ legal_entity_identifier }}",
+      "registrationPending": "En cours d'immatriculation",
+      "fundManager": "Gestionnaire du fonds : {{ name }}",
+      "comment": "Commentaire : {{ comment }}",
+      "commentLabel": "Commentaire",
+      "columnId": "ID",
+      "columnName": "Nom",
+      "columnShortName": "Abréviation",
+      "columnType": "Type",
+      "createItem": "Créer une nouvelle personne",
+      "createItemLegalPerson": "Personne morale",
+      "createItemNaturalPerson": "Personne physique",
+      "createItemInvestmentFund": "Fonds d'investissement"
+    },
+    "entityDates": {
+      "createdOn": "Créé le {{ date }}",
+      "updatedOn": "Dernière modification le {{ date }}"
+    },
+    "dialogItemSelector": {
+      "searchFieldLabel": "Rechercher",
+      "itemIsSelected": "Élément sélectionné",
+      "unselectItem": "Désélectionner cet élément"
+    },
+    "personType": {
+      "@@comment": "The numbers below are from the PERSON_TYPE enum, e.g. 3 == NATURAL_PERSON",
+      "1": "Fonds d'investissement",
+      "2": "Personne morale",
+      "3": "Personne physique"
+    },
+    "tooltips": {
+      "tooltipValidated": "Validé, non modifiable",
+      "tooltipNotValidated": "Non validé, modifiable"
+    },
+    "statusRadioGroup": {
+      "label": "Statut",
+      "ariaLabel": "Sélectionner un statut",
+      "all": "Tous",
+      "validated": "Validés",
+      "notValidated": "Non validés"
+    },
+    "searchFieldLabel": "Rechercher",
+    "resetFiltersAriaLabel": "Réinitialiser les filtres",
+    "personDialog": {
+      "back_create": "Annuler",
+      "back_edit": "Annuler",
+      "back_view": "Retour"
+    }
+  },
+  "backoffice": {
+    "pageHome": {
+      "goThereBtn": "Accéder",
+      "newOperationsHeader": "Capture des nouvelles opérations",
+      "pointageHeader": "Pointage",
+      "dataEntryBlock": {
+        "title": "Saisie",
+        "description": "Saisir les personnes, instruments et mouvements liés à un projet"
+      },
+      "verificationBlock": {
+        "title": "Vérification",
+        "description": "Vérifier ligne par ligne les données saisies sur un projet"
+      },
+      "businessReviewBlock": {
+        "title": "Revue business",
+        "description": "Valider globalement les données saisies sur un projet"
+      },
+      "accountingPointageBlock": {
+        "title": "Pointage comptable",
+        "description": "Cadrer les données Parteng avec les données comptables"
+      },
+      "secondaryOperationsHeader": "Gestion des référentiels",
+      "scopesBlock": {
+        "title": "Périmètres",
+        "description": "Créer, maintenir à jour et consulter les périmètres"
+      },
+      "projectRepositoryBlock": {
+        "title": "Projets",
+        "description": "Créer, maintenir à jour et consulter les projets et leurs objectifs/dossiers"
+      },
+      "personsBlock": {
+        "title": "Personnes",
+        "description": "Maintenir à jour et consulter les personnes"
+      },
+      "instrumentsBlock": {
+        "title": "Instruments",
+        "description": "Maintenir à jour et consulter les instruments et leurs versions"
+      },
+      "repoSelectorDialog": {
+        "dialogTitle": "Référentiel",
+        "updateProject": "Modifier un projet",
+        "updateScope": "Modifier un périmètre",
+        "updatePerson": "Modifier une personne",
+        "updateThis": "Modifier"
+      }
+    }
+  },
+  "project": {
+    "pageProjectsList": {
+      "title": "Projets",
+      "description": "Recherchez un projet par ID, nom, périmètres (code, nom actuel ou historique), objectifs ou contenu du commentaire.<br/>Cliquez sur un projet pour voir son commentaire ainsi que ses objectifs et personnes associées. Validez pour accéder à sa page de détails et, si vous y êtes autorisé(e), pour le modifier ou le supprimer. Il ne sera pas possible de modifier ou supprimer un projet en statut validé",
+      "createNewProjectBtn": "Créer un nouveau projet",
+      "projectsTable": {
+        "columnId": "ID",
+        "columnName": "Nom",
+        "columnScopes": "Périmètre(s)",
+        "columnOrdinary": "VC",
+        "columnDateMin": "Date de début",
+        "columnDateMax": "Date de fin",
+        "columnStatus": "Statut"
+      },
+      "additionalInfo": {
+        "title": "Détails du projet"
+      },
+      "footer": {
+        "viewBtn": "Voir"
+      }
+    },
+    "dialogProjectSelector": {
+      "title": "Sélectionner un projet",
+      "description": "Recherchez un projet par ID, nom, périmètres (code, nom actuel ou historique), objectifs ou contenu du commentaire.<br/>Cliquez sur un projet pour voir son commentaire ainsi que ses objectifs et personnes associées. Validez pour accéder à son contenu et, si vous y êtes autorisé(e), pour y faire de la saisie. Il ne sera pas possible de faire de la saisie dans un projet en statut validé."
+    },
+    "pageProjectForm": {
+      "titleNewProject": "Créer un projet",
+      "titlePrefix": "Référentiel",
+      "titleExistingProject": "Projet : {{ projectName }}",
+      "editingInstructions": {
+        "clickPenToEdit": "Cliquez sur le <span class=\"mat-icon material-icons mat-icon-inline\">edit</span> pour modifier les informations.",
+        "clickValidateToSave": "Enregistrez vos modifications en cliquant sur \"Valider\" en bas de l'écran.",
+        "howToAccessThisStep": "Pour accéder à cette étape, vous devez d'abord renseigner les sections qui précèdent."
+      },
+      "howToCreateBlock": {
+        "title": "Comment créer un projet ?",
+        "stepsList": "Vous allez devoir successivement :",
+        "step1": "sélectionner les périmètres du projet",
+        "step2": "le nommer",
+        "step3": "sélectionner ses objectifs et les éventuelles personnes associées",
+        "step4": "ajouter des dossiers et les éventuels périmètres associés.",
+        "useATemplate": "Vous pouvez si vous le souhaitez utiliser un modèle de projet afin de faciliter la saisie."
+      },
+      "howToModifyBlock": {
+        "title": "Comment modifier un projet ?"
+      },
+      "templateBlock": {
+        "title": "Voulez-vous appliquer un modèle de projet ?",
+        "description": "L'utilisation d'un modèle vous permettra de récupérer un intitulé, des objectifs et des dossiers par défaut que vous pourrez ensuite modifier.",
+        "label": "Modèle",
+        "yourChoice": "Votre choix : {{ templateName }}",
+        "noTemplate": "Pas de modèle",
+        "noTemplateSelected": "---",
+        "templateApplied": "Modèle appliqué : <span class=\"font-semibold\">{{ templateName }}</span>"
+      },
+      "projectIdentificationBlock": {
+        "title": "Identification du projet",
+        "ordinary": "Vie courante",
+        "ordinaryAriaLabel": "Sélectionner une option",
+        "ordinaryYes": "Oui",
+        "ordinaryNo": "Non",
+        "name": "Intitulé du projet",
+        "longName": "Nom étendu du projet :",
+        "comment": "Informations supplémentaires sur le projet",
+        "validate": "Valider l'identification"
+      },
+      "scopesBlock": {
+        "title": "Périmètres du projet",
+        "addScopes": "Ajouter des périmètres"
+      },
+      "goalsBlock": {
+        "title": "Objectifs du projet et personne(s) associée(s)",
+        "addGoals": "Ajouter des objectifs"
+      },
+      "foldersBlock": {
+        "title": "Dossiers du projet et périmètre(s) associé(s)",
+        "addFolders": "Ajouter des dossiers"
+      },
+      "editBlockIconAriaLabel": "Modifier ces informations",
+      "editBlockCancel": "Annuler",
+      "validateProjectBtn": "Valider le projet",
+      "validateChangesBtn": "Valider les modifications",
+      "deleteProjectBtn": "Supprimer le projet",
+      "projectWasSaved": "Le projet a été enregistré",
+      "projectWasDeleted": "Le projet a été supprimé"
+    },
+    "dialogScopeSelector": {
+      "titleSelectScopesForProject": "Sélectionner les périmètres du projet",
+      "titleAddScopesToFolder": "Ajouter des périmètres au dossier",
+      "description": "Recherchez des périmètres par code, nom, nom(s) historique(s), ville ou commentaire. Cliquez sur un périmètre pour voir son commentaire et son univers, et pour le sélectionner. Validez pour ajouter votre liste de périmètres sélectionnés au projet.",
+      "selectedItemsTitle": "Périmètre(s) sélectionné(s)",
+      "selectedItemsDescription": "Vous devez sélectionner au moins un périmètre avant de valider.",
+      "itemAdditionalInfoTitle": "Détails du périmètre",
+      "columnCode": "Code",
+      "columnName": "Nom",
+      "columnHistoricalNames": "Nom(s) historique(s)",
+      "columnCity": "Ville",
+      "createItem": "Créer un nouveau périmètre"
+    },
+    "dialogScopeForm": {
+      "title": "Créer un périmètre",
+      "titleNewScope": "Créer un périmètre",
+      "titleExistingScope": "Périmètre",
+      "description": "Attention, le périmètre nouvellement créé ne pourra pas être modifié que dans le <a href=\"/parteng/scopes/list\" target=\"_blank\" class=\"underline\">Référentiel périmètres</a>.",
+      "deleteBtn": "Supprimer le périmètre",
+      "deleteTitle": "Supprimer le périmètre",
+      "deleteDescription": "Vous allez supprimer le périmètre : {{ scopeName }}",
+      "deleteYes": "Oui, supprimer",
+      "deleteNo": "Non, ne PAS supprimer",
+      "codeAlreadyExists": "Ce code est déjà utilisé par un autre périmètre."
+    },
+    "scopeForm": {
+      "code": "Code",
+      "name": "Nom",
+      "historicalNames": "Nom(s) historique(s)",
+      "city": "Ville",
+      "worlds": "Univers",
+      "atLeastOneWorldRequired": "Vous devez sélectionner au moins un univers.",
+      "comment": "Commentaire"
+    },
+    "dialogProjectScopesChangedWarning": {
+      "title": "Attention !",
+      "text": "Vous avez modifié le(s) périmètre(s) du projet. Ce changement n'est pas automatiquement répercuté sur les  dossiers du projet. N'oubliez pas de vérifier les périmètres associés aux dossiers.",
+      "understoodBtn": "Continuer sans vérifier les dossiers",
+      "goEditFoldersBtn": "Vérifier les dossiers immédiatement"
+    },
+    "dialogGoalSelector": {
+      "title": "Sélectionner les objectifs du projet",
+      "description": "Sélectionnez dans la liste l(es) objectif(s) que vous souhaitez ajouter au projet. Le bouton <span aria-hidden=\"false\" class=\"mat-icon material-icons mat-icon-inline\" aria-label=\"Plus d'informations sur l'objectif\">info_outlined</span> affiche les caractéristiques de l'objectif.<br/>Par la suite, vous pourrez associer un commentaire et des personnes à chaque objectif.",
+      "atLeastOneGoalRequired": "Vous devez sélectionner au moins un objectif.",
+      "infoIconAriaLabel": "Plus d'informations sur l'objectif",
+      "validateBtn": "Valider les objectifs"
+    },
+    "dialogGoalEnricher": {
+      "title": "Enrichir l’objectif : {{ goalName }}",
+      "description": "Vous pouvez associer une ou plusieurs personnes à cet objectif. Vous pouvez également ajouter un commentaire.",
+      "personsLabel": "Liste des personnes associées à l’objectif",
+      "commentLabel": "Précisions sur l'objectif",
+      "dialogPersonSelector": {
+        "title": "Associer des personnes à l’objectif : {{ name }}",
+        "description": "Recherchez des personnes (morales, physiques ou fonds d’investissement) par ID, nom/raison sociale ou abréviation, identifiant (SIREN sans espace) ou commentaire. Cliquez sur une personne pour voir ses informations complémentaires, et pour la sélectionner. Validez pour associer votre liste de personnes sélectionnées à l’objectif et au projet."
+      }
+    },
+    "personSelectorWidget": {
+      "linkPerson": "Associer des personnes",
+      "linkPersonAriaLabel": "Associer une personne à cet objectif",
+      "removePersonAriaLabel": "Supprimer une personne de cet objectif"
+    },
+    "dialogPersonForGoalSelector": {
+      "title": "Associer des personnes à l'objectif : {{ forEntityName }}",
+      "description": "Recherchez des personnes (morales, physiques ou fonds d'investissement) par ID, nom/raison sociale ou abréviation, identifiant (SIREN sans espace) ou commentaire. Cliquez sur une personne pour voir ses informations complémentaires. Double-cliquez pour l'associer à l'objectif et au projet."
+    },
+    "dialogFundManagerSelector": {
+      "title": "Ajouter le gestionnaire du fonds",
+      "description": "Recherchez une personne morale par ID, raison sociale ou abréviation, identifiant (SIREN sans espace) ou commentaire. Cliquez sur une personne pour voir ses informations complémentaires. Validez pour définir cette personne comme le Gestionnaire du fonds.",
+      "selectedItemsTitle": "Gestionnaire sélectionné",
+      "selectedItemsDescription": "Vous ne devez choisir qu'un seul gestionnaire.",
+      "createItem": "Créer un nouveau gestionnaire"
+    },
+    "dialogPersonForm": {
+      "@@comment": "The numbers below are from the PERSON_TYPE enum, e.g. 3 == NATURAL_PERSON",
+      "1": {
+        "title": "Créer un fonds d'investissement",
+        "description": "Attention, le fonds d'investissement nouvellement créé ne peut être modifié par la suite que dans le Référentiel Personnes, ou dans les listes de Personnes dans la saisie d’un projet."
+      },
+      "2": {
+        "title": "Créer une personne morale",
+        "description": "Attention, la personne morale nouvellement créée ne peut être modifiée par la suite que dans le Référentiel Personnes, ou dans les listes de Personnes dans la saisie d’un projet."
+      },
+      "3": {
+        "title": "Créer une personne physique",
+        "description": "Attention, la personne physique nouvellement créée ne peut être modifiée par la suite que dans le Référentiel Personnes, ou dans les listes de Personnes dans la saisie d’un projet."
+      },
+      "fundManager": {
+        "title": "Créer un gestionnaire de fonds",
+        "description": "Attention, le gestionnaire de fonds nouvellement créée ne peut être modifiée par la suite que dans le Référentiel Personnes, ou dans les listes de Personnes dans la saisie d’un projet."
+      }
+    },
+    "personForm": {
+      "@@comment": "The numbers below are from the PERSON_TYPE enum, e.g. 3 == NATURAL_PERSON",
+      "1": {
+        "companyName": "Nom du fonds",
+        "shortName": "Abréviation",
+        "fundType": "Type de fonds",
+        "fundManager": "Gestionnaire du fonds *",
+        "addFundManager": "Ajouter le gestionnaire du fonds *",
+        "changeFundManager": "Modifier le gestionnaire du fonds",
+        "comment": "Commentaire"
+      },
+      "2": {
+        "companyName": "Raison sociale",
+        "shortName": "Abréviation",
+        "registrationPending": "En cours d'immatriculation",
+        "country": "Pays",
+        "countryHint": "Utiliser uniquement les <a style='text-decoration: underline;' href=\"{{ isoCodesUrl }}\" target=\"_blank\">codes Iso 3166</> pour les pays",
+        "identifier": "Identifiant à renseigner sans espace (SIREN pour la France)",
+        "legalEntityType": "Forme sociale (ou entité étrangère)",
+        "comment": "Commentaire"
+      },
+      "3": {
+        "lastName": "Nom",
+        "firstName": "Prénom",
+        "shortName": "Abréviation",
+        "comment": "Commentaire"
+      }
+    },
+    "dialogFolderSelector": {
+      "title": "Ajouter des dossiers au projet",
+      "description": "Créez vos dossiers en leur attribuant un nom et un commentaire. Les dossiers sont associés par défaut au(x) périmètre(s) sélectionné(s) pour le projet.<br/>Vous pouvez modifier les périmètres de chaque dossier individuellement (un périmètre par dossier au minimum)."
+    },
+    "folderForm": {
+      "name": "Nom du dossier",
+      "pickName": "Choisir un nom dans la liste",
+      "scopesList": "Liste des périmètre(s) associé(s) au dossier",
+      "comment": "Commentaire",
+      "submitCreate": "Créer le dossier",
+      "submitModify": "Modifier le dossier",
+      "cancelModify": "Annuler la modification",
+      "nameAlreadyInUse": "Ce nom de dossier est déjà utilisé.",
+      "atLeastOneScopeRequired": "Vous devez sélectionner au moins un périmètre."
+    },
+    "scopeSelectorWidget": {
+      "addScope": "Associer d'autres périmètres",
+      "removeScopeAriaLabel": "Supprimer un périmètre de cette liste"
+    }
+  },
+  "dataEntry": {
+    "featureName": "Saisie",
+    "project": "Projet :",
+    "pageDashboard": {
+      "title": "Projet {{ projectName }}",
+      "createdPersons": "Personnes créées",
+      "referencedPersons": "Personnes référencées",
+      "updatedInstruments": "Instruments mis à jour",
+      "referencedInstruments": "Instruments référencés",
+      "allFolders": "Tous les dossiers",
+      "transferBtn": "Mouvement",
+      "timelineBtn": "Echéancier",
+      "instrumentBtn": "Instrument",
+      "instrumentVersionBtn": "Version d'instrument",
+      "personBtn": "Personne",
+      "dialogInstrumentSelector": {
+        "title": "Sélectionner un instrument",
+        "description": "Recherchez un instrument par ID, type, nom ou commentaire. Cliquez sur un instrument pour voir son commentaire. Validez pour accéder à sa page de détails et créer une nouvelle version de cet instrument."
+      }
+    },
+    "pageTransfersList": {
+      "title": "{{ folderName }} : Mouvements",
+      "description": "Recherchez un mouvement par ID, type, noms des instruments ou des personnes, ou commentaire - et à l'aide des filtres proposés. Cliquez sur un mouvement pour voir son commentaire. Validez pour accéder à sa page de détails et, si vous y êtes autorisé(e), pour le modifier ou le supprimer.",
+      "allFolders": "Tous les dossiers",
+      "transfersTable": {
+        "columnId": "ID",
+        "columnDate": "Date",
+        "columnTransferType": "Type",
+        "columnInstruments": "Instrument(s)",
+        "columnPersons": "Personne(s)",
+        "columnQuantities": "Quantité(s)",
+        "columnSource": "Source",
+        "columnFolder": "Dossier",
+        "columnStatus": "Statut"
+      },
+      "transferCategoryRadioGroup": {
+        "ariaLabel": "Catégorie"
+      },
+      "transferSourceRadioGroup": {
+        "label": "Source",
+        "ariaLabel": "Sélectionner une source",
+        "all": "Toutes",
+        "manualEntry": "Saisie manuelle",
+        "schedule": "Échéancier"
+      },
+      "noTransferFoundInFolder": "Aucun mouvement trouvé dans le dossier {{ folderName }}",
+      "noTransferFoundInProject": "Aucun mouvement trouvé dans le projet {{ projectName }}",
+      "footer": {
+        "additionalInfoTitle": "Commentaire sur le mouvement",
+        "viewBtn": "Voir"
+      }
+    },
+    "pageTransferForm": {
+      "titlePrefix": "Saisie",
+      "titleNewTransfer": "Ajouter un mouvement",
+      "titleExistingTransfer": "Mouvement : {{ transferDate }} {{ transferType }}",
+      "breadcrumbDataEntry": "Saisie",
+      "breadcrumbProject": "Projet {{ projectName }}",
+      "breadcrumbFolder": "Dossier {{ folderName }}",
+      "blockDisabledMessage": "Pour accéder à cette étape, vous devez d'abord renseigner les sections qui précèdent",
+      "generalInfoBlock": {
+        "title": "Informations sur le mouvement",
+        "dateLabel": "Date",
+        "editDateAriaLabel": "Modifier la date",
+        "transferTypeLabel": "Type de mouvement",
+        "editTransferTypeAriaLabel": "Modifier le type de mouvement",
+        "pickTransferType": "Choisissez un type de mouvement",
+        "commentLabel": "Commentaire sur le mouvement",
+        "editCommentAriaLabel": "Modifier le commentaire"
+      },
+      "instrumentsBlock": {
+        "title": "Instruments",
+        "selectInstrument": "Sélectionner un autre instrument",
+        "ownershipType": "Type de propriété",
+        "selectOwnershipType": "Sélectionner un autre type de propriété"
+      },
+      "personsBlock": {
+        "title": "Personnes",
+        "selectPerson": "Sélectionner une autre personne"
+      },
+      "quantitiesAmountsBlock": {
+        "title": "Quantités / Montants",
+        "description": "Remplir obligatoirement quantité (si présentée) et au minimum une valeur par section présentée. La cohérence des quantités et des montants ne sera vérifiée qu'à la validation",
+        "editQtyAmount": "Modifier"
+      },
+      "buttons": {
+        "hintCreate": "Vous avez la possibilité d'ajouter un mouvement similaire en cliquant sur \"Valider et ajouter à nouveau\".",
+        "hintUpdate": "Vous avez la possibilité d'ajouter un mouvement similaire en cliquant sur \"Ajouter à nouveau\".",
+        "validate": "Valider le mouvement",
+        "delete": "Supprimer le mouvement"
+      },
+      "dialogDuplicateWarning": {
+        "title": "Attention !",
+        "description": "Le mouvement que vous souhaitez créer est similaire à un mouvement déjà existant en tous points (date / type / instruments / personnes / quantités et montants).<br/><br/>Confirmez-vous la création de ce doublon ?"
+      },
+      "dialogPersonSelector": {
+        "title": "Associer une personne au mouvement : {{ name }}",
+        "description": "Recherchez des personnes (morales, physiques ou fonds d'investissement) par ID, nom/raison sociale ou abréviation, identifiant (SIREN sans espace) ou commentaire. Cliquez sur une personne pour voir ses informations complémentaires. Validez pour l'associer au mouvement et au projet."
+      },
+      "dialogInstrumentSelector": {
+        "title": "Sélectionner : {{ name }}",
+        "description": "Sélectionnez l'instrument dans la liste des choix possibles pour ce type de mouvement. Recherchez un instrument par ID, type, nom, ou commentaire. Cliquez sur un instrument pour voir son commentaire. Validez pour le sélectionner."
+      },
+      "dialogLeaveWarningText": "Vous allez quitter cette page sans avoir validé la création du mouvement. Les informations que vous avez saisies seront perdues.",
+      "transferWasSaved": "Le mouvement a été enregistré",
+      "transferWasDeleted": "Le mouvement a été supprimé"
+    },
+    "dialogInstrumentSelector": {
+      "title": "Sélectionner un instrument",
+      "description": "Sélectionnez l'instrument dans la liste des choix possibles pour ce type de mouvement. Recherchez un instrument par ID, nom, ou commentaire. Cliquez sur un instrument pour voir son commentaire. Cliquez sur un instrument et validez pour le sélectionner.",
+      "selectedItemsTitle": "Instrument sélectionné",
+      "selectedItemsDescription": "Vous ne devez choisir qu'un seul instrument.",
+      "itemAdditionalInfoTitle": "Commentaire sur l'instrument",
+      "additionalInfoNotAvailable": "-",
+      "createItem": "Créer un nouvel instrument",
+      "columnId": "ID",
+      "columnName": "Nom",
+      "columnEffectiveDate": "Date d'effet\ndernière version",
+      "columnCreationProject": "Projet de création\ndernière version"
+    },
+    "dialogPersonSelector": {
+      "title": "Associer une personne au mouvement : {{ forEntityName }}",
+      "description": "Recherchez des personnes (morales, physiques ou fonds d'investissement) par ID, nom/raison sociale ou abréviation, identifiant (SIREN sans espace) ou commentaire. Cliquez sur une personne pour voir ses informations complémentaires. Validez pour l'associer au mouvement et au projet.",
+      "itemAdditionalInfoTitle": "Informations complémentaires"
+    },
+    "pageInstrumentForm": {
+      "titleNewInstrument": "Créer un instrument",
+      "generalInfoBlock": {
+        "title": "Informations générales sur l'instrument",
+        "dateLabel": "Date d'effet",
+        "instrumentTypeLabel": "Type d'instrument"
+      },
+      "attributes": {
+        "attributesLabel": "Attributs",
+        "pleaseFillGeneralInfos": "Pour accéder à cette étape, vous devez d'abord renseigner les informations générales."
+      },
+      "attributeYes": "Oui",
+      "attributeNo": "Non",
+      "comment": {
+        "commentLabel": "Commentaire",
+        "placeHolder": "Commentaire sur l'instrument"
+      },
+      "personSelectorDialog": {
+        "title": "Sélectionner la personne pour : {{ name }}",
+        "description": "Recherchez des personnes (morales, physiques ou fonds d'investissement) par ID, nom/raison sociale ou abréviation, identifiant (SIREN sans espace) ou commentaire. Cliquez sur une personne pour voir ses informations complémentaires. Validez pour l'affecter à cet attribut et au projet."
+      }
+    },
+    "pageInstrumentsList": {
+      "title": "Instruments : ",
+      "description": "Recherchez un instrument par ID, type, nom ou commentaire. Cliquez sur un instrument pour voir son commentaire. Validez pour accéder à sa page de détails et, si vous y êtes autorisé(e), pour le modifier ou le supprimer. Vous pourrez également, si vous y êtes autorisé(e), créer, modifier ou supprimer une version de cet instrument.",
+      "footer": {
+        "viewBtn": "Voir"
+      },
+      "folders": {
+        "UPDATED_INSTRUMENTS": "Instruments mis à jour",
+        "REFERENCED_INSTRUMENTS": "Instruments référencés"
+      },
+      "comment": "Commentaire sur l'instrument",
+      "noInstrument": {
+        "UPDATED_INSTRUMENTS": "Aucun instrument créé/mis à jour dans le projet {{ projectName }}",
+        "REFERENCED_INSTRUMENTS": "Aucun instrument référencé dans le projet {{ projectName }}"
+      },
+      "instrumentsTable": {
+        "columnId": "ID",
+        "columnName": "Nom de l'instrument",
+        "columnEffectiveDate": "Date d'effet\ndernière version",
+        "columnProject": "Projet de création\ndernière version"
+      }
+    },
+    "pageInstrumentUpdate": {
+      "title": "Instrument : {{ instrumentName }}",
+      "deleteTitle": "Supprimer l'instrument",
+      "deleteDescription": "Vous allez supprimer l'instrument : {{ instrumentName }}",
+      "deleteYes": "Oui, supprimer",
+      "deleteNo": "Non, ne PAS supprimer",
+      "updateSuccess": "L'instrument a été mis à jour",
+      "updateDelete": "L'instrument a été effacé",
+      "generalInfoBlock": {
+        "title": "Informations générales sur l'instrument",
+        "instrumentTypeLabel": "Type d'instrument",
+        "instrumentCommentLabel": "Commentaire sur l'instrument"
+      },
+      "changesPlaceholder": "Nature des modifications",
+      "versionsBlock": {
+        "title": "Versions"
+      },
+      "instrumentVersionsTable": {
+        "columnNumber": "N°",
+        "columnEffectiveDate": "Date d'effet",
+        "columnInstrumentName": "Nom de l'instrument",
+        "columnCreationProject": "Projet de création",
+        "columnStatus": "Statut"
+      },
+      "buttons": {
+        "deleteInstrument": "Supprimer l'instrument",
+        "showVersion": "Voir la version",
+        "addVersion": "Ajouter une version",
+        "update": "Valider les modifications",
+        "back": "Retour"
+      }
+    },
+    "pageInstrumentVersionCreate": {
+      "title": "Ajouter une version"
+    },
+    "pageInstrumentVersionUpdate": {
+      "title": "Version {{ effectiveDate }} (N°{{ versionOrder }})",
+      "fullTitle": "Instrument : {{ instrumentName }} / Version : {{ effectiveDate }} (N°{{ versionOrder }})"
+    },
+    "instrumentVersionForm": {
+      "generalInfoBlock": {
+        "title": "Informations générales sur la version",
+        "dateLabel": "Date d'effet",
+        "creationProject": "Projet de création",
+        "changes": "Nature des modifications",
+        "changesV1": "Pas de modification pour la première version d'un instrument"
+      },
+      "cancel": "Retour",
+      "delete": "Supprimer la version",
+      "validateNew": "Valider la nouvelle version",
+      "validateUpdate": "Valider les modifications",
+      "cancelNew": "Annuler",
+      "attributes": {
+        "attributesLabel": "Attributs",
+        "pleaseFillGeneralInfos": "Pour accéder à cette étape, vous devez d'abord renseigner les informations générales."
+      },
+      "deleteTitle": "Supprimer la version d'instrument",
+      "deleteDescription": "Vous allez supprimer la version {{ versionOrder }} dans l'instrument {{ instrumentName }}",
+      "deleteYes": "Oui, supprimer",
+      "deleteNo": "Non, ne PAS supprimer"
+    },
+    "attributesForm": {
+      "Yes": "Oui",
+      "No": "Non",
+      "notModifiableOnCreate": "Cet attribut ne pourra pas être modifié après la création de l'instrument, même dans le cadre de l'ajout d'une nouvelle version de l'instrument.",
+      "notModifiableOnUpdate": "Cet attribut ne peut pas être modifié après la création de l'instrument, même dans le cadre de l'ajout d'une nouvelle version de l'instrument.",
+      "currentValue": "Valeur actuelle",
+      "previousVersionValue": "Valeur de la version précédente"
+    },
+    "pagePersonsList": {
+      "breadcrumbTitle": "Personnes",
+      "title": {
+        "CREATED_PERSONS": "Personnes créées",
+        "REFERENCED_PERSONS": "Personnes référencées"
+      },
+      "noPerson": {
+        "CREATED_PERSONS": "Aucune personne créée dans le projet {{ projectName }}",
+        "REFERENCED_PERSONS": "Aucune personne référencée dans le projet {{ projectName }}"
+      },
+      "description": "Recherchez des personnes (morales, physiques ou fonds d’investissement) par ID, nom/raison sociale ou abréviation, identifiant (SIREN sans espace) ou commentaire. Cliquez sur une personne pour voir le contenu de son commentaire. Validez pour accéder à sa page de détails et, si vous y êtes autorisé(e), pour la modifier. Pour supprimer une personne, vous devez vous rendre dans le Référentiel Personnes.",
+      "personsTable": {
+        "id": "id",
+        "name": "Nom",
+        "shortName": "Abréviation",
+        "personType": "Type",
+        "legalEntityType": "Forme sociale",
+        "country": "Pays",
+        "legalEntityIdentifier": "Identifiant (Siren)",
+        "legalEntityIdentifierProcess": "En cours d'immat.",
+        "creationProject": "Projet de création",
+        "status": "Statut"
+      },
+      "comment": "Commentaire sur la personne"
+    }
+  },
+  "instruments": {
+    "featureName": "Instruments",
+    "referential": "Referentiel",
+    "pageInstrumentsList": {
+      "breadcrumbTitle": "Instruments",
+      "title": "Référentiel instruments",
+      "description": "Recherchez un instrument par ID, type, nom ou commentaire. Cliquez sur un instrument pour voir son commentaire. Validez pour accéder à sa page de détails et, si vous y êtes autorisé(e), pour le modifier ou le supprimer. Vous pourrez également, si vous y êtes autorisé(e), modifier ou supprimer une version de cet instrument. La création d'un instrument ou d'une version se fait exclusivement depuis l'interface de saisie d'un projet."
+    }
+  },
+  "persons": {
+    "pagePersonsList": {
+      "breadcrumbTitle": "Personnes",
+      "title": "Référentiel personnes",
+      "description": "Recherchez des personnes (morales, physiques ou fonds d’investissement) par ID, nom/raison sociale ou abréviation, identifiant (SIREN sans espace) ou commentaire. Cliquez sur une personne pour voir son commentaire. Validez pour accéder à sa page de détails et, si vous y êtes autorisé(e), pour la modifier ou la supprimer. Il ne sera pas possible de modifier ou supprimer une personne validée. La création d'une personne se fait exclusivement depuis l’interface de saisie d’un projet."
+    },
+    "deleteDialog": {
+      "title": "Suppression de la personne {{ name }}",
+      "description": "Vous allez supprimer la personne {{name}} ?",
+      "yes": "Oui, supprimer",
+      "no": "Non, ne PAS supprimer"
+    }
+  },
+  "scopes": {
+    "pageScopesList": {
+      "breadcrumbTitle": "Périmètres",
+      "title": "Référentiel périmètres",
+      "description": "Recherchez des périmètres par code, nom (actuel ou historique), ville ou commentaire. Cliquez sur un périmètre pour voir son commentaire et son univers.<br/>Validez pour accéder à ses détails et, si vous y êtes autorisé(e), pour le modifier ou le supprimer.",
+      "detailsAreaTitle": "Détails du périmètre",
+      "detailsAreaWorlds": "Univers",
+      "createNewScopeBtn": "Créer un nouveau périmètre",
+      "footer": {
+        "viewBtn": "Voir"
+      }
+    }
+  }
+}

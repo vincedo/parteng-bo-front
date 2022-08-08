@@ -1,0 +1,656 @@
+##################################################
+#                   Stages list                  #
+##################################################
+
+stages:
+  - pre build
+  - build
+  - code lint
+  - tests
+  - docker
+  - release
+  - deploy
+  - post deploy
+  - post tests
+
+workflow:
+  rules:
+    #We currently run the pipeline ONLY on branches not tags
+    - if: $CI_COMMIT_BRANCH
+
+##################################################
+#                 Variables list                 #
+##################################################
+
+variables:
+  DIR_DIST: "app/dist"
+  DIR_NPM: ".npm"
+  DIR_PUBLIC: "public"
+  DIR_REPORT: "reports"
+  GIT_STRATEGY: fetch
+  VERSION: ""
+  BACKEND_VERSION: ""
+  BACKEND_PROJECT_NAME: "parteng-api"
+  BACKEND_PACKAGE_NAME: "parteng-chart"
+  APP_SECRET_DB_PASSWORD: ""
+  APP_SECRET_DB_LOGIN: "parteng"
+  APP_SECRET_AZURE_CLIENT_ID: ""
+  APP_SECRET_AZURE_CLIENT_SECRET: ""
+  APP_SECRET_AZURE_REDIRECT_URI: ""
+  APP_SECRET_AZURE_TENANT: ""
+  APP_SECRET_AZURE_GROUP_PREFIX: "Arpilabe_Role_DEV"
+  APP_SECRET_AZURE_USERNAME: ""
+  APP_SECRET_REDIS_PASSWORD: ""
+  GROUP_REGISTRY_USER: ""
+  GROUP_REGISTRY_TOKEN: ""
+  NODE_VERSION: "16-alpine"
+  APP_DOMAIN: "arpilabe.com"
+  DEPLOY_NAME: ""
+  DEPLOY_HOST: ""
+  DEPLOY_PATH: ""
+  DEPLOY_ENVIRONMENT: ""
+  GIT_ACCESS_TOKEN: ""
+  CI_DEBUG_TRACE: "false"
+
+##################################################
+#              Jobs common parameters            #
+##################################################
+
+.default_cache:
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - $DIR_DIST
+      - infra/helm/charts/${BACKEND_VERSION}/jmeter/*
+    policy: pull
+
+before_script:
+  - cd app
+  - HUSKY_SKIP_INSTALL=1 CYPRESS_INSTALL_BINARY=0 npm ci --cache $DIR_NPM --prefer-offline
+
+##################################################
+#                    Jobs list                   #
+##################################################
+
+###########################
+#        Pre Build        #
+###########################
+Compute version:
+  image: bash
+  artifacts:
+    reports:
+      dotenv: app/shared-vars.env
+  before_script:
+    - cd app
+    #Download script dependencies
+    - apk add yq --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+    - apk update
+    - apk add jq moreutils git yq
+    #Sepcify who's doing the release commit
+    - git config user.email "gitlab.jira@adacap.com"
+    - git config user.name "Gitlab CI"
+    #Set creds to allow push and fetch develop branch
+    - git remote set-url --push origin "https://gitlab-ci-token:$GIT_ACCESS_TOKEN@$CI_SERVER_HOST/$CI_PROJECT_PATH.git"
+    - git fetch origin +refs/heads/develop:refs/remotes/origin/develop --depth 50 --prune --quiet
+  script:
+    #Extract version from composer
+    - VERSION=$(jq -r .version package.json)
+    #Check if backend version is sent through push options, otherwise defaults to Chart.yaml.dist value
+    - if [ -z "${BACKEND_VERSION}" ]; then
+    #Extract backend version from chart yaml
+    - BACKEND_VERSION=$(yq e '.dependencies[0].version' ../infra/helm/Chart.yaml.dist)
+    - fi
+    #Download semver shell script
+    - wget "https://raw.githubusercontent.com/fsaintjacques/semver-tool/master/src/semver"
+    - chmod +x semver
+    #Extract version information
+    - BACKEND_PREREL=$(./semver get prerel ${BACKEND_VERSION})
+    - PREREL=$(./semver get prerel ${VERSION})
+    - MAJOR=$(./semver get major ${VERSION})
+    - MINOR=$(./semver get minor ${VERSION})
+    #If we're on a release branch
+    - if [[ "${CI_COMMIT_BRANCH}" =~ ^release\/ ]]; then
+    - BRANCH_VERSION="${CI_COMMIT_BRANCH#*/}.0"
+    #Version in package must match version in branch name
+    - if [ "$(./semver compare ${BRANCH_VERSION} ${MAJOR}.${MINOR}.0 2>&1)" != "0" ]; then
+    - echo "Version in branch name (${CI_COMMIT_BRANCH}) doesn't match version in package.json (${MAJOR}.${MINOR})"
+    - exit 1
+    - fi
+    #In a release branch the backend must be in "alpha"
+    - if [ "alpha" != "${BACKEND_PREREL}" ]; then
+    - echo "Version of backend (${BACKEND_VERSION}) must be in 'alpha'"
+    - exit 1
+    - fi
+    #We're in Alpha, we either deploy on UAT (default) or on Training if passed through push options
+    - if [ "${DEPLOY_ENVIRONMENT}" = "training" ]; then
+    - DEPLOY_NAME="training"
+    - DEPLOY_HOST="parteng-training.${APP_DOMAIN}"
+    - DEPLOY_PATH=""
+    - DEPLOY_ENVIRONMENT="training"
+    - DEPLOY_CLUSTER="parteng-training"
+    #We deploy on training
+    - else
+    #We deploy on UAT (default)
+    - DEPLOY_NAME="uat"
+    - DEPLOY_HOST="parteng-uat.${APP_DOMAIN}"
+    - DEPLOY_PATH=""
+    - DEPLOY_ENVIRONMENT="testing"
+    - DEPLOY_CLUSTER="parteng-dev"
+    - fi
+    #If there is no prerelease part in the version, it's a new branch
+    - if [ -z "${PREREL}" ]; then
+    #Branch must be pushed from develop
+    - if [ "${CI_COMMIT_SHA}" != $(git rev-parse origin/develop) ]; then
+    - echo "Branch ${CI_COMMIT_BRANCH} must start from develop ONLY !"
+    - exit 1
+    - fi
+    - echo "Newly created release branch, bumping versions"
+    #Update version with 'alpha' prelease
+    - RELEASE_VERSION=$(./semver bump prerel alpha ${VERSION})
+    - jq --arg version $RELEASE_VERSION '.version = $version' package.json | sponge package.json
+    - echo "Pushing version ${RELEASE_VERSION} to ${CI_COMMIT_BRANCH} branch"
+    - git commit -a -m "[ci skip] Release management - Bump version ${RELEASE_VERSION}"
+    - git push --follow-tags origin HEAD:$CI_COMMIT_BRANCH
+    #Update develop with bumped version
+    - git checkout develop
+    - NEXT_VERSION=$(./semver bump minor ${VERSION})
+    - jq --arg version $NEXT_VERSION '.version = $version' package.json | sponge package.json
+    - echo "Pushing next version ${NEXT_VERSION} to develop branch"
+    - git commit -a -m "[ci skip] Release management - Bump version ${NEXT_VERSION}"
+    - git push --follow-tags origin
+    - VERSION=${RELEASE_VERSION}
+    #If there's already a prelease, we only accept 'alpha'
+    - elif [ "alpha" != "${PREREL}" ]; then
+    - echo "Something went wrong, prerel is ${PREREL} but should be alpha"
+    - exit 1
+    - else
+    #The release branch already exist
+    - echo "Version already bumped, let's continue"
+    - fi
+    #If we're on Master branch (serious business)
+    - elif [ "${CI_COMMIT_BRANCH}" = "master" ]; then
+    #Get the parents of this commit => 2 if it's a merge commit, 1 if linear history
+    - git_parents=$(git cat-file -p "${CI_COMMIT_SHA}" | grep parent | cut -d" " -f2)
+    #Reject linear history on Master
+    - if [ $(echo "${git_parents}" | wc -l) -lt 2 ]; then
+    - echo "Can't have a linear history on Master. No commit directly on master allowed, or no fast-forward merge required."
+    - exit 1
+    - fi
+    #Keep only the reference of the merged branch, by removing the previous master from parents
+    - previous_master_commit_hash=$(git rev-parse origin/${CI_COMMIT_BRANCH}^1)
+    - merge_origin=$(echo "${git_parents}" | grep -v "${previous_master_commit_hash}")
+    #Fetch release/MAJOR.MINOR branch
+    - git fetch origin +refs/heads/release/${MAJOR}.${MINOR}:refs/remotes/origin/release/${MAJOR}.${MINOR} --depth 50 --prune --quiet
+    #If the prerel is alpha, we're coming from a release branch, version should match
+    - if [[ "alpha" == "${PREREL}" && $(git rev-parse origin/release/${MAJOR}.${MINOR}) != "${merge_origin}" ]]; then
+    - echo "We are in Alpha, Branch ${CI_COMMIT_BRANCH} must have release/${MAJOR}.${MINOR} as parent branch !"
+    - exit 1
+    - fi
+    #If the prerel is empty, we must come from a hotfix branch
+    - git fetch
+    - git checkout master
+    - if [[ "" == "${PREREL}" && ! $(git branch -a --contains "${merge_origin}" | grep -v "${CI_COMMIT_BRANCH}" | tr -d ' ') =~ ^remotes/origin/hotfix\/ ]]; then
+    - echo "We're in final version the parent branch must be an hotfix branch !"
+    - exit 1
+    - fi
+    #The backend version must be a final version (no prerel)
+    - if [ "" != "${BACKEND_PREREL}" ]; then
+    - echo "Version of backend (${BACKEND_VERSION}) must final (no prerel)"
+    - exit 1
+    - fi
+    #If we come from a release branch, bump to final version
+    - if [ "alpha" = "${PREREL}" ]; then
+    - RELEASE_VERSION=$(./semver bump release ${VERSION})
+    #If we come from a hotfix branch, bump patch version
+    - elif [ "" = "${PREREL}" ]; then
+    - RELEASE_VERSION=$(./semver bump patch ${VERSION})
+    #Something went wrong, we can't be in that case
+    - else
+    - echo "This case can't happen we're in master and prerel (${PREREL}) is not 'alpha' nor empty !"
+    - exit 1
+    - fi
+    - jq --arg version $RELEASE_VERSION '.version = $version' package.json | sponge package.json
+    - echo "Pushing version ${RELEASE_VERSION} to ${CI_COMMIT_BRANCH} branch"
+    - git commit -a -m "[ci skip] Release management - Bump version ${RELEASE_VERSION}"
+    - git push --follow-tags origin HEAD:${CI_COMMIT_BRANCH}
+    - VERSION=${RELEASE_VERSION}
+    - APP_VERSION=${RELEASE_VERSION}
+    #We're in Prod
+    - DEPLOY_NAME="prod"
+    - DEPLOY_HOST="parteng.${APP_DOMAIN}"
+    - DEPLOY_PATH=""
+    - DEPLOY_ENVIRONMENT="production"
+    - DEPLOY_CLUSTER="parteng-prod"
+    - else
+    #Non release flow
+    - VERSION=${VERSION}-${CI_COMMIT_REF_SLUG}
+    - DEPLOY_NAME="${CI_BUILD_REF_SLUG}-front"
+    - DEPLOY_HOST="parteng-dev.${APP_DOMAIN}"
+    - DEPLOY_PATH="/${CI_BUILD_REF_SLUG}-front"
+    - DEPLOY_ENVIRONMENT="development"
+    - DEPLOY_CLUSTER="parteng-dev"
+    - fi
+    - echo "VERSION=$VERSION" >> shared-vars.env
+    - echo "BACKEND_VERSION=$BACKEND_VERSION" >> shared-vars.env
+    - echo "DEPLOY_NAME=$DEPLOY_NAME" >> shared-vars.env
+    - echo "DEPLOY_HOST=$DEPLOY_HOST" >> shared-vars.env
+    - echo "DEPLOY_PATH=$DEPLOY_PATH" >> shared-vars.env
+    - echo "DEPLOY_ENVIRONMENT=$DEPLOY_ENVIRONMENT" >> shared-vars.env
+    - echo "DEPLOY_CLUSTER=$DEPLOY_CLUSTER" >> shared-vars.env
+  stage: pre build
+
+#######################
+#        Build        #
+#######################
+Build:
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - $DIR_DIST
+  image: node:$NODE_VERSION
+  needs: ["Compute version"]
+  stage: build
+  script:
+    - apk update
+    - apk add jq moreutils
+    - jq --arg gitCommitHash $CI_COMMIT_SHORT_SHA '.gitCommitHash = $gitCommitHash' package.json | sponge package.json
+    - npx ng build --base-href https://${DEPLOY_HOST}${DEPLOY_PATH}/
+
+Generate chart yaml:
+  image: alpine
+  needs: ["Compute version"]
+  artifacts:
+    paths:
+      - infra/helm/Chart.yaml
+  before_script:
+    - echo "Nothing !"
+  script:
+    - apk add gettext yq
+    - backendVersion=${BACKEND_VERSION} yq e -i '.dependencies[0].version = strenv(backendVersion)' infra/helm/Chart.yaml.dist
+    - version=${VERSION} commitId=${CI_COMMIT_SHA} envsubst < infra/helm/Chart.yaml.dist > infra/helm/Chart.yaml
+    - cat infra/helm/Chart.yaml
+  stage: build
+
+#######################
+#     Code Lint       #
+#######################
+Lint TS:
+  allow_failure: true
+  extends: .default_cache
+  image: node:$NODE_VERSION
+  script:
+    - npx ng lint
+  stage: code lint
+
+Lint SCSS:
+  allow_failure: true
+  extends: .default_cache
+  image: node:$NODE_VERSION
+  script:
+    - npx stylelint "**/*.scss"
+  stage: code lint
+
+Lint YAML:
+  extends: .default_cache
+  image: node:$NODE_VERSION
+  script:
+    - npx yamllint ../**/*.yml
+  stage: code lint
+
+Lint Helm:
+  image:
+    name: alpine/helm
+    entrypoint: [""]
+  needs: ["Compute version", "Generate chart yaml"]
+  before_script:
+    - echo "Nothing"
+  script:
+    - cd infra/helm/
+    - export HELM_EXPERIMENTAL_OCI=1
+    - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - helm pull oci://$CI_REGISTRY/$CI_PROJECT_ROOT_NAMESPACE/$BACKEND_PROJECT_NAME/$BACKEND_PACKAGE_NAME --version $BACKEND_VERSION -d charts/
+    - |
+      helm lint . -f values.yaml \
+        --strict \
+        --set ingress.host=localhost \
+        --set ingress.path=/ \
+        --set ingress.stripedPath=/ \
+        --set ${BACKEND_PACKAGE_NAME}.ingress.host=localhost \
+        --set ${BACKEND_PACKAGE_NAME}.ingress.path=/api \
+        --set ${BACKEND_PACKAGE_NAME}.ingress.stripedPath=/api \
+        --set ${BACKEND_PACKAGE_NAME}.dockerRegistry.username=userforlint \
+        --set ${BACKEND_PACKAGE_NAME}.dockerRegistry.password=passwordforlint \
+        --set ${BACKEND_PACKAGE_NAME}.azure.clientId=clientIdforlint \
+        --set ${BACKEND_PACKAGE_NAME}.azure.clientSecret=clientSecretforlint \
+        --set ${BACKEND_PACKAGE_NAME}.azure.tenant=tenantforlint \
+        --set ${BACKEND_PACKAGE_NAME}.azure.username=usernameforlint \
+        --set ${BACKEND_PACKAGE_NAME}.azure.password=passwordforlint \
+        --set ${BACKEND_PACKAGE_NAME}.maria.auth.password=userforlint
+  stage: code lint
+
+#######################
+#        Tests        #
+#######################
+Unit tests:
+  allow_failure: true
+  artifacts:
+    expire_in: 10 years
+    name: "${CI_JOB_NAME}-${CI_COMMIT_REF_SLUG}"
+    paths:
+      - app/coverage
+    when: always
+  coverage: '/^Lines\s*\: \d+\.?\d+\% \( \d+\/\d+ \)/'
+  extends: .default_cache
+  needs: ["Build", "Lint TS", "Lint SCSS", "Lint YAML"]
+  image: node:$NODE_VERSION
+  script:
+    - npx jest
+  stage: tests
+
+#######################
+#       Docker        #
+#######################
+Docker build:
+  extends: .default_cache
+  stage: docker
+  needs: ["Unit tests", "Compute version"]
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - echo "Nothing !"
+  script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/infra/docker/Dockerfile --destination $CI_REGISTRY/$CI_PROJECT_PATH/$CI_PROJECT_NAME:$VERSION
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /#runDockerStage/ || $CI_COMMIT_MESSAGE =~ /#runDeployStage/
+    - if: $CI_COMMIT_REF_NAME == "master"
+
+Helm build:
+  stage: docker
+  image:
+    name: alpine/helm
+    entrypoint: [""]
+  needs: ["Generate chart yaml", "Compute version", "Lint Helm"]
+  before_script:
+    - echo "Nothing !"
+  script:
+    - export HELM_EXPERIMENTAL_OCI=1
+    - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - cd infra/helm/
+    - echo "Building $CI_REGISTRY/$CI_PROJECT_PATH/$CI_PROJECT_NAME-chart:$VERSION"
+    - helm pull oci://$CI_REGISTRY/$CI_PROJECT_ROOT_NAMESPACE/$BACKEND_PROJECT_NAME/$BACKEND_PACKAGE_NAME --version $BACKEND_VERSION -d charts/
+    - helm package .
+    - helm push parteng-bo-front-chart-$VERSION.tgz oci://$CI_REGISTRY/$CI_PROJECT_PATH
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /#runDockerStage/ || $CI_COMMIT_MESSAGE =~ /#runDeployStage/
+    - if: $CI_COMMIT_REF_NAME == "master"
+
+###################
+#     Release     #
+###################
+Create gitlab release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs: [ "Compute version", "Docker build", "Helm build" ]
+  before_script:
+    - echo "Nothing !"
+  script:
+    - echo "Creating gitlab release v${VERSION}..."
+  release:
+    name: 'Release v${VERSION}'
+    description: 'Automatically created by ${CI_COMMIT_AUTHOR}'
+    tag_name: 'v${VERSION}'
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "master"
+
+#######################
+#     Deployment      #
+#######################
+
+.deploy_script:
+  image:
+    name: alpine/k8s:1.20.7
+    entrypoint: [""]
+  needs:
+    ["Docker build", "Helm build", "Compute version", "Generate chart yaml"]
+  stage: deploy
+  before_script:
+    - echo "Nothing !"
+  cache:
+    key: "$CI_COMMIT_REF_SLUG" # Name will be based on branch.
+    paths:
+      #The JMeter file is in the chart, and will be used to populate the Database in a later step
+      - infra/helm/charts/${BACKEND_VERSION}/jmeter/*
+      - $DIR_DIST
+  script:
+    - apk update
+    - apk add jq
+    - echo "Deploy start ..."
+    #Expose Database only on develop and release branches
+    - if [[ "${CI_COMMIT_BRANCH}" =~ ^release\/ ]] || [ "develop" = "${CI_COMMIT_BRANCH}" ]; then
+    - DB_SERVICE_TYPE="LoadBalancer"
+    - else
+    - DB_SERVICE_TYPE="ClusterIP"
+    - fi
+    #Configuration specific to production env
+    - if [ "${CI_COMMIT_BRANCH}" = "master" ]; then
+    - DB_ARCHITECTURE="replication"
+    - DB_SCHEMA_NAME="parteng"
+    - else
+    - DB_ARCHITECTURE="standalone"
+    - DB_SCHEMA_NAME="parteng_development"
+    - fi
+    #Choose cluster depending on env type
+    - kubectl config use-context arpilabe/parteng-api:${DEPLOY_CLUSTER}
+    - cd infra/helm/
+    - export HELM_EXPERIMENTAL_OCI=1
+    - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - helm pull oci://$CI_REGISTRY/$CI_PROJECT_ROOT_NAMESPACE/$BACKEND_PROJECT_NAME/$BACKEND_PACKAGE_NAME --version $BACKEND_VERSION -d charts/
+    - |
+      echo "helm upgrade \
+              ${DEPLOY_NAME} . \
+              --debug -i -f values.yaml \
+              --namespace ${DEPLOY_NAME} \
+              --create-namespace \
+              --atomic \
+              --timeout 10m0s \
+              --set ${BACKEND_PACKAGE_NAME}.maria.auth.password="${APP_SECRET_DB_PASSWORD}" \
+              --set ${BACKEND_PACKAGE_NAME}.maria.auth.username=${APP_SECRET_DB_LOGIN} \
+              --set ${BACKEND_PACKAGE_NAME}.maria.auth.rootPassword="${MYSQL_ROOT_PASSWORD}" \
+              --set ${BACKEND_PACKAGE_NAME}.maria.auth.readonlyPassword="${MYSQL_READONLY_PASSWORD}" \
+              --set ${BACKEND_PACKAGE_NAME}.maria.auth.database="${DB_SCHEMA_NAME}" \
+              --set ${BACKEND_PACKAGE_NAME}.maria.architecture="${DB_ARCHITECTURE}" \
+              --set ${BACKEND_PACKAGE_NAME}.maria.primary.service.type="${DB_SERVICE_TYPE}" \
+              --set ${BACKEND_PACKAGE_NAME}.dockerRegistry.username=${GROUP_REGISTRY_USER} \
+              --set ${BACKEND_PACKAGE_NAME}.dockerRegistry.password="${GROUP_REGISTRY_TOKEN}" \
+              --set ${BACKEND_PACKAGE_NAME}.elasticsearch.clusterName=${CI_BUILD_REF_SLUG} \
+              --set ${BACKEND_PACKAGE_NAME}.redis.password="${APP_SECRET_REDIS_PASSWORD}" \
+              --set ${BACKEND_PACKAGE_NAME}.azure.clientId=${APP_SECRET_AZURE_CLIENT_ID} \
+              --set ${BACKEND_PACKAGE_NAME}.azure.groupPrefix=${APP_SECRET_AZURE_GROUP_PREFIX} \
+              --set ${BACKEND_PACKAGE_NAME}.azure.redirectUri=${APP_SECRET_AZURE_REDIRECT_URI} \
+              --set ${BACKEND_PACKAGE_NAME}.azure.clientSecret="${APP_SECRET_AZURE_CLIENT_SECRET}" \
+              --set ${BACKEND_PACKAGE_NAME}.azure.password="${APP_SECRET_AZURE_PASSWORD}" \
+              --set ${BACKEND_PACKAGE_NAME}.azure.tenant=${APP_SECRET_AZURE_TENANT} \
+              --set ${BACKEND_PACKAGE_NAME}.azure.username=${APP_SECRET_AZURE_USERNAME} \
+              --set ${BACKEND_PACKAGE_NAME}.ingress.host=${DEPLOY_HOST} \
+              --set ${BACKEND_PACKAGE_NAME}.ingress.path=${DEPLOY_PATH}/api \
+              --set ${BACKEND_PACKAGE_NAME}.ingress.stripedPath=${DEPLOY_PATH} \
+              --set ${BACKEND_PACKAGE_NAME}.environment=${DEPLOY_ENVIRONMENT} \
+              --set backendName=${BACKEND_PACKAGE_NAME} \
+              --set ingress.path=${DEPLOY_PATH} \
+              --set ingress.stripedPath=${DEPLOY_PATH} \
+              --set ingress.host=${DEPLOY_HOST}"
+    - |
+      helm upgrade \
+              ${DEPLOY_NAME} . \
+              --debug -i -f values.yaml \
+              --namespace ${DEPLOY_NAME} \
+              --create-namespace \
+              --atomic \
+              --timeout 10m0s \
+              --set ${BACKEND_PACKAGE_NAME}.maria.auth.password="${APP_SECRET_DB_PASSWORD}" \
+              --set ${BACKEND_PACKAGE_NAME}.maria.auth.username=${APP_SECRET_DB_LOGIN} \
+              --set ${BACKEND_PACKAGE_NAME}.maria.auth.rootPassword="${MYSQL_ROOT_PASSWORD}" \
+              --set ${BACKEND_PACKAGE_NAME}.maria.auth.readonlyPassword="${MYSQL_READONLY_PASSWORD}" \
+              --set ${BACKEND_PACKAGE_NAME}.maria.auth.database="${DB_SCHEMA_NAME}" \
+              --set ${BACKEND_PACKAGE_NAME}.maria.architecture="${DB_ARCHITECTURE}" \
+              --set ${BACKEND_PACKAGE_NAME}.maria.primary.service.type="${DB_SERVICE_TYPE}" \
+              --set ${BACKEND_PACKAGE_NAME}.dockerRegistry.username=${GROUP_REGISTRY_USER} \
+              --set ${BACKEND_PACKAGE_NAME}.dockerRegistry.password="${GROUP_REGISTRY_TOKEN}" \
+              --set ${BACKEND_PACKAGE_NAME}.elasticsearch.clusterName=${CI_BUILD_REF_SLUG} \
+              --set ${BACKEND_PACKAGE_NAME}.redis.password="${APP_SECRET_REDIS_PASSWORD}" \
+              --set ${BACKEND_PACKAGE_NAME}.azure.clientId=${APP_SECRET_AZURE_CLIENT_ID} \
+              --set ${BACKEND_PACKAGE_NAME}.azure.clientSecret="${APP_SECRET_AZURE_CLIENT_SECRET}" \
+              --set ${BACKEND_PACKAGE_NAME}.azure.groupPrefix=${APP_SECRET_AZURE_GROUP_PREFIX} \
+              --set ${BACKEND_PACKAGE_NAME}.azure.redirectUri=${APP_SECRET_AZURE_REDIRECT_URI} \
+              --set ${BACKEND_PACKAGE_NAME}.azure.password="${APP_SECRET_AZURE_PASSWORD}" \
+              --set ${BACKEND_PACKAGE_NAME}.azure.tenant=${APP_SECRET_AZURE_TENANT} \
+              --set ${BACKEND_PACKAGE_NAME}.azure.username=${APP_SECRET_AZURE_USERNAME} \
+              --set ${BACKEND_PACKAGE_NAME}.ingress.host=${DEPLOY_HOST} \
+              --set ${BACKEND_PACKAGE_NAME}.ingress.path=${DEPLOY_PATH}/api \
+              --set ${BACKEND_PACKAGE_NAME}.ingress.stripedPath=${DEPLOY_PATH} \
+              --set ${BACKEND_PACKAGE_NAME}.environment=${DEPLOY_ENVIRONMENT} \
+              --set backendName=${BACKEND_PACKAGE_NAME} \
+              --set ingress.path=${DEPLOY_PATH} \
+              --set ingress.stripedPath=${DEPLOY_PATH} \
+              --set ingress.host=${DEPLOY_HOST}
+    - echo "Deployment done !"
+    - if [ "LoadBalancer" = "${DB_SERVICE_TYPE}" ]; then
+    - PUBLIC_IP=$(kubectl get svc -n ${DEPLOY_NAME} statefulset-parteng-database -o json | jq '.status.loadBalancer.ingress[0] .ip')
+    - echo -e "\e[31mDatabase exposed on public IP ${PUBLIC_IP}\e[0m"
+    - fi
+
+Deploy to dev:
+  environment:
+    name: development/${CI_COMMIT_REF_NAME}-front
+    url: https://${DEPLOY_HOST}/${DEPLOY_PATH}/
+    kubernetes:
+      namespace: ${CI_BUILD_REF_SLUG}-front
+    on_stop: Remove deploy to dev
+  extends: .deploy_script
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /#runDeployStage/ && $CI_COMMIT_BRANCH !~ /^release\//
+
+Deploy to uat:
+  environment:
+    name: uat
+    deployment_tier: testing
+    url: https://${DEPLOY_HOST}/
+    kubernetes:
+      namespace: ${DEPLOY_NAME}
+    on_stop: Remove deploy to uat
+  extends: .deploy_script
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /#runDeployStage/ && $CI_COMMIT_BRANCH =~ /^release\// && $DEPLOY_ENVIRONMENT != "training"
+
+Deploy to training:
+  environment:
+    name: training
+    deployment_tier: staging
+    url: https://${DEPLOY_HOST}/
+    kubernetes:
+      namespace: ${DEPLOY_NAME}
+    on_stop: Remove deploy to training
+  extends: .deploy_script
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /#runDeployStage/ && $CI_COMMIT_BRANCH =~ /^release\// && $DEPLOY_ENVIRONMENT == "training"
+
+Deploy to prod:
+  environment:
+    name: production
+    deployment_tier: production
+    url: https://${DEPLOY_HOST}/
+    kubernetes:
+      namespace: ${DEPLOY_NAME}
+  extends: .deploy_script
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "master"
+
+#####################
+#     Undeploy      #
+#####################
+
+.undeploy_script:
+  image:
+    name: alpine/k8s:1.18.2
+    entrypoint: [""]
+  stage: deploy
+  needs: ["Compute version"]
+  before_script:
+    - echo "Nothing !"
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - |
+      echo "Removing deployment..."
+      kubectl config use-context arpilabe/parteng-api:${DEPLOY_CLUSTER}
+      helm uninstall \
+        --namespace ${DEPLOY_NAME} \
+        ${DEPLOY_NAME}
+      kubectl delete ns ${DEPLOY_NAME}
+      echo "Deployment removed !"
+
+Remove deploy to dev:
+  environment:
+    name: development/${CI_COMMIT_REF_NAME}-front
+    action: stop
+  extends: .undeploy_script
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /#runDeployStage/ && $CI_COMMIT_BRANCH !~ /^release\//
+      when: manual
+
+Remove deploy to uat:
+  environment:
+    name: uat
+    deployment_tier: testing
+    action: stop
+  extends: .undeploy_script
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /#runDeployStage/ && $CI_COMMIT_BRANCH =~ /^release\// && $DEPLOY_ENVIRONMENT != "training"
+      when: manual
+
+Remove deploy to training:
+  environment:
+    name: training
+    deployment_tier: staging
+    action: stop
+  extends: .undeploy_script
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /#runDeployStage/ && $CI_COMMIT_BRANCH =~ /^release\// && $DEPLOY_ENVIRONMENT == "training"
+      when: manual
+
+############################
+#     Post Deployment      #
+############################
+
+#.populate:
+#  allow_failure: true
+#  image:
+#    name: justb4/jmeter
+#    entrypoint: [""]
+#  extends: .default_cache
+#  before_script:
+#    - echo "Nothing !"
+#  script:
+#    - cd infra/helm/charts/${BACKEND_PACKAGE_NAME}/
+#    - mkdir -p ${DIR_REPORT}
+#    - jmeter -n -t jmeter/parteng.jmx -l ${DIR_REPORT}/jmeter_log.jtl -e -o ${DIR_REPORT}/jmeter -Jhostname=${DEPLOY_HOST} -Jadmin_user_login=${APP_SECRET_AZURE_USERNAME} -Jadmin_user_password=${APP_SECRET_AZURE_PASSWORD} -Jbranch_prefix=${DEPLOY_PATH}
+#    - cat ${DIR_REPORT}/jmeter_log.jtl
+#  stage: post deploy
+#
+#Populate data to dev:
+#  extends: .populate
+#  needs: ["Compute version", "Deploy to dev"]
+#  rules:
+#    - if: $CI_COMMIT_MESSAGE =~ /#runDeployStage/ && $CI_COMMIT_BRANCH !~ /^release\//
+#
+#Populate data to uat:
+#  extends: .populate
+#  needs: ["Compute version", "Deploy to uat"]
+#  rules:
+#    - if: $CI_COMMIT_MESSAGE =~ /#runDeployStage/ && $CI_COMMIT_BRANCH =~ /^release\//
+
+##################################
+#     Post Deployment Tests      #
+##################################

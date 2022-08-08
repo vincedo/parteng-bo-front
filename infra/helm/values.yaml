@@ -1,0 +1,211 @@
+nginx:
+  enabled: true
+  ##Optionnal, default values provided
+  #image:
+  #imageTag:
+
+labels: {}
+replicas: 1
+podAnnotations: {}
+
+resources:
+  #Placeholder to have .Values.resources available as every fields are optionnal
+  enabled: true
+  ##Optionnal, default value "256Mi"
+  #memoryLimit:
+  ##Optionnal, default value "256Mi"
+  #memoryRequests:
+  ##Optionnal, default value "100m"
+  #cpuLimit:
+  ##Optionnal, default value "100m"
+  #cpuRequests:
+
+repository: registry.gitlab.com/arpilabe/parteng-bo-front
+image: parteng-bo-front
+#Define the backend package name
+##To inject dynamically during deployment
+#backendName:
+httpPort: 80
+
+ingress:
+  #Define if the ingress will be deployed or not
+  enabled: true
+  #Host on which the application will be deployed
+  ##To inject dynamically during deployment
+  #host:
+  #Path on which the application will be deployed
+  ##To inject dynamically during deployment
+  #path: /api
+  #Part of the path that will be striped by the Ingress Middleware
+  ##To inject dynamically during deployment
+  #stripedPath: /api
+
+service:
+  labels: {}
+  annotations: {}
+  type: ClusterIP
+  nodePort: false
+  ##Optionnal, default "http"
+  #httpPortName:
+
+parteng-chart:
+  fpm:
+    resources:
+      #Placeholder to have .Values.resources available as every fields are optionnal
+      enabled: true
+      memoryLimit: "1500Mi"
+      memoryRequests: "1500Mi"
+      cpuLimit: "1000m"
+      cpuRequests: "1000m"
+  maria:
+    fullnameOverride: "statefulset-parteng-database"
+    image:
+      tag: "10.5"
+      debug: true
+    #Type of deployment
+    ## Can either be standalone or replication
+    architecture: "standalone"
+    auth:
+      ##To inject from vault during deployment
+      #rootPassword:
+      database: "parteng_development"
+      username: "app"
+      ##To inject from vault during deployment
+      #password:
+      usePasswordFiles: true
+      #Readonly Username
+      readonlyUsername: "readonly"
+      ##To inject from vault during deployment
+      #readonlyPassword:
+    initdbScriptsConfigMap: cm-mysql-sql-init-scripts
+    primary:
+      persistence:
+        storageClass: managed-premium
+      #Used to expose the database
+      service:
+        #If publicly exposed "LoadBalancer" otherwise "ClusterIP". Beware of security concerns when publicly expose, always set "loadBalancerSourceRanges" to restrict access to limited IP addresses
+        type: LoadBalancer
+        loadBalancerSourceRanges:
+          #Agathe Home
+          - "176.182.232.22/32"
+          #Arpilabe Puteaux
+          - "45.129.218.146/32"
+          #LNE Home
+          - "82.65.161.52/32"
+          #GTO Home
+          - "78.199.216.53/32"
+          #MEI boyfriend
+          - "83.167.43.98/32"
+          #MEI coworking
+          - "90.79.184.24/32"
+          #MEI Home
+          - "86.242.27.200/32"
+
+      configuration: |
+        [mysqld]
+        skip-name-resolve
+        explicit_defaults_for_timestamp
+        basedir=/opt/bitnami/mariadb
+        port=3306
+        socket=/opt/bitnami/mariadb/tmp/mysql.sock
+        tmpdir=/opt/bitnami/mariadb/tmp
+        max_allowed_packet=16M
+        bind-address=0.0.0.0
+        pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+        log-error=/opt/bitnami/mariadb/logs/mysqld.log
+        character_set_server = utf8mb4
+        collation_server = utf8mb4_general_ci
+        sql_mode=TRADITIONAL
+  
+        [client]
+        port=3306
+        socket=/opt/bitnami/mariadb/tmp/mysql.sock
+        default_character_set = utf8mb4
+  
+        [manager]
+        port=3306
+        socket=/opt/bitnami/mariadb/tmp/mysql.sock
+        pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+      resources:
+        requests:
+          memory: "512Mi"
+          cpu: "1000m"
+        limits:
+          memory: "512Mi"
+          cpu: "1000m"
+      extraEnvVars:
+        - name: TZ
+          value: "UTC"
+    secondary:
+      pdb:
+        enabled: false
+      persistence:
+        storageClass: managed-premium
+      configuration: |
+        [mysqld]
+        skip-name-resolve
+        explicit_defaults_for_timestamp
+        basedir=/opt/bitnami/mariadb
+        port=3306
+        socket=/opt/bitnami/mariadb/tmp/mysql.sock
+        tmpdir=/opt/bitnami/mariadb/tmp
+        max_allowed_packet=16M
+        bind-address=0.0.0.0
+        pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+        log-error=/opt/bitnami/mariadb/logs/mysqld.log
+        character_set_server = utf8mb4
+        collation_server = utf8mb4_general_ci
+        sql_mode=TRADITIONAL
+  
+        [client]
+        port=3306
+        socket=/opt/bitnami/mariadb/tmp/mysql.sock
+        default_character_set = utf8mb4
+  
+        [manager]
+        port=3306
+        socket=/opt/bitnami/mariadb/tmp/mysql.sock
+        pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+      resources:
+        requests:
+          memory: "512Mi"
+          cpu: "1000m"
+        limits:
+          memory: "512Mi"
+          cpu: "1000m"
+      extraEnvVars:
+        - name: TZ
+          value: "UTC"
+    volumePermissions:
+      enabled: true
+
+  redis:
+    #To inject from vault during deployment
+    #password:
+    fullnameOverride: "statefulset-parteng-redis"
+    existingSecret: false
+    cluster:
+      enabled: false
+    master:
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "200m"
+        limits:
+          memory: "256Mi"
+          cpu: "200m"
+
+  elasticsearch:
+    #Not needed yet
+    enabled: false
+    #clusterName: "parteng"
+    #clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
+    #replicas: 1
+    #esJavaOpts: "-Xmx256m -Xms256m"
+    #resources:
+    #  requests:
+    #    cpu: "500m"
+    #    memory: "500Mi"
+    #  limits:
+    #    cpu: "500m"
+    #    memory: "500Mi"

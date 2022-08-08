@@ -1,0 +1,25 @@
+.transfer-qty-amount-field {
+  .mat-form-field-wrapper {
+    padding-bottom: 0;
+  }
+
+  .left-border {
+    @apply before:content-[''] before:absolute before:bg-blue-ptg-secondary-200 before:w-[2px] before:h-[30px] before:bottom-0 before:left-0 before:mb-3;
+  }
+
+  .left-border2 {
+    @apply before:content-[''] before:absolute before:bg-blue-ptg-secondary-200 before:w-[2px] before:h-[30px] before:bottom-0 before:left-0 before:mb-1;
+  }
+
+  .field-item {
+    @apply w-52 flex-none pr-7;
+
+    .label {
+      @apply text-xs text-blue-ptg-primary;
+    }
+
+    .value {
+      @apply text-sm font-semibold;
+    }
+  }
+}

@@ -1,0 +1,28 @@
+<div class="flex justify-between items-start">
+  <!-- Text Filter -->
+  <div class="flex-auto pr-6">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>{{ 'shared.searchFieldLabel' | translate }}</mat-label>
+      <input matInput [value]="textFilter" (input)="onTextFilterChanged($event)" cdkFocusInitial data-testId="projects-search-text"/>
+      <mat-icon matSuffix class="text-blue-ptg-primary-800">search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <!-- Status Filter -->
+  <div class="flex-none relative border border-blue-ptg-primary-300 rounded-[10px] h-12 p-3 mt-1">
+    <label class="absolute -top-2 left-4 text-xs bg-white px-1">Statut</label>
+    <mat-radio-group
+      [attr.aria-label]="'shared.statusRadioGroup.ariaLabel' | translate"
+      class="flex flex-row text-sm mb-4"
+      (change)="onStatusFilterChanged($event)"
+    >
+      <mat-radio-button
+        *ngFor="let radio of statusRadios"
+        [value]="radio.value"
+        [checked]="radio.value === statusFilter"
+        class="mr-4"
+        >{{ radio.labelTranslateKey | translate }}</mat-radio-button
+      >
+    </mat-radio-group>
+  </div>
+</div>

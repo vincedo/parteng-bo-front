@@ -1,0 +1,47 @@
+<!-- Text Filter -->
+<div>
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>{{ 'shared.searchFieldLabel' | translate }}</mat-label>
+    <input matInput [value]="textFilter" (input)="onTextFilterChanged($event)" cdkFocusInitial />
+    <mat-icon matSuffix class="text-blue-ptg-primary-800">search</mat-icon>
+  </mat-form-field>
+</div>
+
+<div class="flex justify-between items-start">
+  <!-- Transfer Status Filter -->
+  <div class="flex-none">
+    <parteng-multi-radios-filter-field
+      [value]="statusFilter"
+      [options]="statusOptions"
+      [label]="'shared.statusRadioGroup.label' | translate"
+      [ariaLabel]="'shared.statusRadioGroup.ariaLabel' | translate"
+      (valueChanged)="onStatusFilterChanged($event)"
+    ></parteng-multi-radios-filter-field>
+  </div>
+
+  <!-- Transfer Category Filter -->
+  <div class="flex-none">
+    <parteng-multi-checkboxes-filter-field
+      [value]="categoriesFilter"
+      [options]="transferCategoryOptions"
+      [label]="'dataEntry.pageTransfersList.transferCategoryRadioGroup.ariaLabel' | translate"
+      (valueChanged)="onCategoriesFilterChanged($event)"
+    ></parteng-multi-checkboxes-filter-field>
+  </div>
+
+  <!-- Transfer Source Filter -->
+  <div class="flex-none">
+    <parteng-multi-radios-filter-field
+      [value]="sourceFilter"
+      [options]="sourceOptions"
+      [label]="'dataEntry.pageTransfersList.transferSourceRadioGroup.label' | translate"
+      [ariaLabel]="'dataEntry.pageTransfersList.transferSourceRadioGroup.ariaLabel' | translate"
+      (valueChanged)="onSourceFilterChanged($event)"
+    ></parteng-multi-radios-filter-field>
+  </div>
+
+  <!-- Reset -->
+  <div class="flex-none">
+    <parteng-reset-filters-button (resetFilters)="onResetFilters()"></parteng-reset-filters-button>
+  </div>
+</div>

@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-{{ template "app.name" . }}-sidecar-entrypoint
+  labels:
+    heritage: {{ .Release.Service | quote }}
+    release: {{ .Release.Name | quote }}
+    chart: "{{ .Chart.Name }}"
+    app: "{{ template "app.name" . }}"
+data:
+  sidecar-entrypoint.sh: |-
+    #!/bin/sh
+
+    set -e
+
+    echo "Modified sidecar-entrypoint"
+
+    change_owner () {
+        echo "Change owner:group of $TARGET to $TARGET_USER:$TARGET_GROUP"
+        chown $TARGET_USER:$TARGET_GROUP -R $TARGET
+    }
+
+    SOURCE="${SOURCE_DIR:-/source}"
+    TARGET="${TARGET_DIR:-/target}"
+    TARGET_USER="${TARGET_USER:-root}"
+    TARGET_GROUP="${TARGET_GROUP:-root}"
+
+    echo "Copy from $SOURCE to $TARGET"
+
+    if [ -d $SOURCE ]; then
+            if [ -f $TARGET/done ]; then
+            echo "Files were already copied"
+            if [ "$FORCE_COPY" == "true" ]; then
+                echo "Force copy anyway... Will rewrite target folder"
+                rm -rf $TARGET/*
+            else
+                change_owner
+                echo "Will exit. To force the copy set FORCE_COPY=true"
+                exit 0
+            fi
+         fi
+        mkdir -p $TARGET
+        if [[ `find $SOURCE/* | wc -l ` = 1 ]]; then
+            FILE=`find $SOURCE/*`
+            echo "Only one file $FILE"
+            if [[ `echo "$FILE" | grep "\.tar.bz2$"` ]]; then
+                echo "It's tar.bz2 file"
+                time tar -xjf $FILE -C $TARGET
+            elif [[ `echo "$FILE" | grep "\.*tar.gz$"` ]]; then
+                echo "It's tar.gz file"
+                time tar -xzf $FILE -C $TARGET
+            else
+                echo "Other file"
+                cp $FILE $TARGET
+            fi
+        else
+            echo "Multiple files -> Copy folder"
+            cp -r $SOURCE/* $TARGET
+        fi
+        change_owner
+        echo "Touch file"
+        touch ${TARGET}/done
+        ls $TARGET
+        echo "Done!"
+    fi
+
+    exit 0

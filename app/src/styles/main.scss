@@ -1,0 +1,97 @@
+@use '/src/styles/material';
+@use '/src/styles/variables.scss' as v;
+
+/* ======================== */
+/* ===== Layer "base" ===== */
+/* ======================== */
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+
+  :root {
+    --main-text-color: #202020;
+  }
+
+  .mat-typography {
+    background-color: #fff;
+    color: var(--main-text-color);
+    margin: 0;
+    padding: 0;
+
+    h1,
+    h2,
+    h3,
+    li {
+      color: var(--main-text-color);
+      margin: 0;
+      padding: 0;
+    }
+
+    p {
+      color: var(--main-text-color);
+      margin-bottom: 6px;
+      margin-top: 6px;
+    }
+
+  }
+
+}
+
+/* ============================== */
+/* ===== Layer "components" ===== */
+/* ============================== */
+
+@layer components {
+  .dialog-scope-selector {
+    .mat-header-row {
+      height: 30px;
+    }
+
+    .mat-row {
+      height: 30px;
+    }
+  }
+}
+
+/* ============================= */
+/* ===== Layer "utilities" ===== */
+/* ============================= */
+
+@layer utilities {
+  /*
+  .label {
+    @apply text-blue-ptg-primary text-xs;
+  }
+  .value {
+    @apply text-black-ptg font-bold text-sm
+  }
+  */
+  .ptg {
+    &-page-title {
+      @apply text-lg font-semibold mb-8 uppercase;
+
+      .prefix {
+        @apply text-2xl font-light my-4 pr-3 mr-3 border-r-[3px] border-blue-ptg-secondary-500;
+      }
+    }
+
+    &-page-title-blueline {
+      @apply text-lg font-semibold my-4 pl-4 border-l-[3px] border-blue-ptg-primary-800;
+    }
+
+    &-page-header {
+      height: v.$parteng-page-header-height;
+    }
+
+    &-page-content-h-full {
+      height: calc(100% - v.$parteng-page-header-height);
+    }
+
+    &-required {
+      @apply after:content-['*'] after:ml-0.5;
+    }
+  }
+}

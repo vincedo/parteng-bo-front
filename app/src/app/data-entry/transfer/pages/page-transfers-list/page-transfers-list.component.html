@@ -1,0 +1,48 @@
+<div class="page-transfers-list w-full h-full mx-auto" *ngIf="transfersListState$ | async as state">
+  <!-- Page Header -->
+  <div class="page-header">
+    <parteng-page-title
+      [title]="'dataEntry.pageTransfersList.title' | translate: { folderName: state.parentFolder?.long_name }"
+    ></parteng-page-title>
+    <h1 class="ptg-page-title-blueline">
+      {{
+        'dataEntry.pageTransfersList.title'
+          | translate
+            : { folderName: state.parentFolder?.long_name || 'dataEntry.pageTransfersList.allFolders' | translate }
+      }}
+    </h1>
+    <div [innerHTML]="'dataEntry.pageTransfersList.description' | translate" class="mt-2 mb-[30px]"></div>
+  </div>
+
+  <!-- Content -->
+  <div class="page-content-h-full">
+    <parteng-transfers-list
+      [parentProject]="state.parentProject"
+      [parentFolder]="state.parentFolder"
+      [allTransfers]="state.allTransfers"
+      [selectedTransfer]="selectedTransfer || (defaultSelectedTransfer$ | async)!"
+      [allTransferCategories]="state.allTransferCategories"
+      [backendError]="state.backendError"
+      (transferClicked)="onTransferClicked($event)"
+    ></parteng-transfers-list>
+  </div>
+
+  <!-- Footer -->
+  <div class="page-footer flex items-center justify-end">
+    <div>
+      <button
+        type="button"
+        mat-button
+        mat-raised-button
+        color="primary"
+        (click)="gotoSelectedTransfer()"
+        [disabled]="!selectedTransfer"
+        parteng-requires-permission="read"
+        parteng-requires-resource="transfers"
+        data-test-id="show-selected-transfer-button"
+      >
+        {{ 'dataEntry.pageTransfersList.footer.viewBtn' | translate }}
+      </button>
+    </div>
+  </div>
+</div>

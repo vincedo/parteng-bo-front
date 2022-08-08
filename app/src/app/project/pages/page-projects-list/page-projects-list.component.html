@@ -1,0 +1,59 @@
+<div *ngIf="projectsListState$ | async as state" class="page-projects-list w-[1240px] h-full mx-auto">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="my-4">
+      <parteng-page-title [title]="'project.pageProjectsList.title' | translate"></parteng-page-title>
+      <parteng-breadcrumb [breadcrumb]="[{ label: 'project.pageProjectsList.title' | translate }]"></parteng-breadcrumb>
+    </div>
+
+    <div class="flex justify-between">
+      <div class="flex-auto">
+        <h1 class="text-lg font-semibold pl-4 border-l-[3px] border-blue-ptg-primary-800">
+          {{ 'project.pageProjectsList.title' | translate }}
+        </h1>
+        <div [innerHTML]="'project.pageProjectsList.description' | translate"></div>
+      </div>
+      <div class="flex-none">
+        <button
+          type="button"
+          data-testId="create-project-button"
+          parteng-requires-permission="create"
+          parteng-requires-resource="projects"
+          mat-stroked-button
+          color="primary"
+          routerLink="../create"
+        >
+          {{ 'project.pageProjectsList.createNewProjectBtn' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="page-content-h-full">
+    <parteng-projects-list
+      [allProjects]="state.allProjects"
+      [highlightedProject]="state.highlightedProject"
+      [backendError]="state.backendError"
+      (projectClicked)="onProjectClicked($event)"
+    ></parteng-projects-list>
+  </div>
+
+  <!-- Footer -->
+  <div class="page-footer flex items-center justify-end">
+    <div>
+      <button
+        type="button"
+        mat-raised-button
+        color="primary"
+        (click)="gotoProject(state.highlightedProject)"
+        [disabled]="!state.highlightedProject"
+        parteng-requires-permission="read"
+        parteng-requires-resource="projects"
+        data-testId="show-selected-project-button"
+      >
+        {{ 'project.pageProjectsList.footer.viewBtn' | translate }}
+      </button>
+    </div>
+  </div>
+</div>

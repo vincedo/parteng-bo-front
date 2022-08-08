@@ -1,0 +1,110 @@
+<parteng-page-title title="Parteng BackOffice"></parteng-page-title>
+
+<section class="page-admin-home pt-12 flex flex-col items-center bg-gray-ptg-2 h-full">
+  <div class="w-[1200px] flex flex-col items-center">
+    <!-- HEADER -->
+    <h1 class="p-0 m-0 my-2 text-4xl font-light">Parteng Backoffice</h1>
+
+    <!-- Capture des nouvelles opérations -->
+    <div class="w-full flex mb-5">
+      <div class="w-3/4 pr-3">
+        <div class="w-full">
+          <parteng-homepage-separator
+            [title]="'backoffice.pageHome.newOperationsHeader' | translate"
+          ></parteng-homepage-separator>
+        </div>
+        <div class="w-full flex justify-between">
+          <parteng-homepage-block
+            id="dataEntry"
+            icon="./assets/icons/icon_input.svg"
+            [title]="'backoffice.pageHome.dataEntryBlock.title' | translate"
+            [description]="'backoffice.pageHome.dataEntryBlock.description' | translate"
+            [buttonLabel]="'backoffice.pageHome.goThereBtn' | translate"
+            (buttonClicked)="openProjectSelector()"
+          ></parteng-homepage-block>
+          <parteng-homepage-block
+            icon="./assets/icons/icon_verification.svg"
+            [title]="'backoffice.pageHome.verificationBlock.title' | translate"
+            [description]="'backoffice.pageHome.verificationBlock.description' | translate"
+            [buttonLabel]="'backoffice.pageHome.goThereBtn' | translate"
+            [isDisabled]="true"
+          ></parteng-homepage-block>
+          <parteng-homepage-block
+            icon="./assets/icons/icon_business-review.svg"
+            [title]="'backoffice.pageHome.businessReviewBlock.title' | translate"
+            [description]="'backoffice.pageHome.businessReviewBlock.description' | translate"
+            [buttonLabel]="'backoffice.pageHome.goThereBtn' | translate"
+            [isDisabled]="true"
+          ></parteng-homepage-block>
+        </div>
+      </div>
+      <div class="w-1/4 pl-3">
+        <div class="w-full">
+          <parteng-homepage-separator
+            [title]="'backoffice.pageHome.pointageHeader' | translate"
+          ></parteng-homepage-separator>
+        </div>
+        <div>
+          <parteng-homepage-block
+            icon="./assets/icons/icon_accounting-pointage.svg"
+            [title]="'backoffice.pageHome.accountingPointageBlock.title' | translate"
+            [description]="'backoffice.pageHome.accountingPointageBlock.description' | translate"
+            [buttonLabel]="'backoffice.pageHome.goThereBtn' | translate"
+            [isDisabled]="true"
+          ></parteng-homepage-block>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gestion des référentiels -->
+
+    <div class="w-full my-5">
+      <parteng-homepage-separator
+        [title]="'backoffice.pageHome.secondaryOperationsHeader' | translate"
+      ></parteng-homepage-separator>
+    </div>
+
+    <div class="w-full flex justify-between">
+      <parteng-homepage-block
+        icon="./assets/icons/icon_scopes.svg"
+        [title]="'backoffice.pageHome.scopesBlock.title' | translate"
+        [description]="'backoffice.pageHome.scopesBlock.description' | translate"
+        [buttonLabel]="'backoffice.pageHome.goThereBtn' | translate"
+        (buttonClicked)="goToScopesReferential()"
+        parteng-requires-permission="read"
+        parteng-requires-resource="scopes"
+        data-testId="parteng-scopes-block"
+      ></parteng-homepage-block>
+      <parteng-homepage-block
+        icon="./assets/icons/icon_project-repository.svg"
+        [title]="'backoffice.pageHome.projectRepositoryBlock.title' | translate"
+        [description]="'backoffice.pageHome.projectRepositoryBlock.description' | translate"
+        [buttonLabel]="'backoffice.pageHome.goThereBtn' | translate"
+        (buttonClicked)="gotoProjectRepository()"
+        parteng-requires-permission="read"
+        parteng-requires-resource="projects"
+        data-testId="parteng-projects-block"
+      ></parteng-homepage-block>
+      <parteng-homepage-block
+        icon="./assets/icons/icon_persons.svg"
+        [title]="'backoffice.pageHome.personsBlock.title' | translate"
+        [description]="'backoffice.pageHome.personsBlock.description' | translate"
+        [buttonLabel]="'backoffice.pageHome.goThereBtn' | translate"
+        (buttonClicked)="goToPersonsReferential()"
+        parteng-requires-permission="read"
+        parteng-requires-resource="persons"
+        data-testId="parteng-persons-block"
+      ></parteng-homepage-block>
+      <parteng-homepage-block
+        icon="./assets/icons/icon_instruments.svg"
+        [title]="'backoffice.pageHome.instrumentsBlock.title' | translate"
+        [description]="'backoffice.pageHome.instrumentsBlock.description' | translate"
+        [buttonLabel]="'backoffice.pageHome.goThereBtn' | translate"
+        (buttonClicked)="goToInstrumentsReferential()"
+        parteng-requires-permission="read"
+        parteng-requires-resource="instruments"
+        data-testId="parteng-instruments-block"
+      ></parteng-homepage-block>
+    </div>
+  </div>
+</section>

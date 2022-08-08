@@ -1,0 +1,18 @@
+@use '/src/styles/variables' as v;
+
+$header-height: 180px;
+$footer-height: 70px;
+
+.page-projects-list {
+  .page-header {
+    height: $header-height;
+  }
+
+  .page-content-h-full {
+    height: calc(100% - $header-height - $footer-height);
+  }
+
+  .page-footer {
+    height: $footer-height;
+  }
+}

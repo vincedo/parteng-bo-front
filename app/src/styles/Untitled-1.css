@@ -1,0 +1,67 @@
+@use '/src/styles/material';
+@use '/src/styles/variables' as v;
+
+/* ======================== */
+/* ===== Layer "base" ===== */
+/* ======================== */
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+
+  :root {
+    --main-text-color: #202020;
+  }
+
+  .body {
+    margin: 0;
+    @apply bg-neutral-50;
+  }
+
+  .mat-typography {
+    color: var(--main-text-color);
+    h1,
+    h2,
+    h3,
+    li,
+    p {
+      color: var(--main-text-color);
+    }
+    p {
+      padding: 0;
+      margin: 0;
+      margin-top: 6px;
+      margin-bottom: 6px;
+    }
+  }
+}
+
+/* ============================== */
+/* ===== Layer "components" ===== */
+/* ============================== */
+
+@layer components {
+  .dialog-scope-selector {
+    .mat-header-row {
+      height: 30px;
+    }
+
+    .mat-row {
+      height: 30px;
+    }
+  }
+}
+
+/* ============================= */
+/* ===== Layer "utilities" ===== */
+/* ============================= */
+
+@layer utilities {
+  .ptg {
+    &-page-title {
+      @apply text-4xl font-light mb-8;
+    }
+  }
+}

@@ -1,0 +1,268 @@
+<section class="project-form">
+  <div id="formTop"></div>
+  <parteng-error-block [error]="backendError"></parteng-error-block>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <!------------------------------->
+    <!----- General Information ----->
+    <!------------------------------->
+
+    <parteng-transfer-form-block [title]="'dataEntry.pageTransferForm.generalInfoBlock.title' | translate">
+      <!----- Date ----->
+      <div>
+        <div class="mb-4" *ngIf="form.get('date')?.value && !isDateEditable; else datePicker">
+          <div class="text-xs text-blue-ptg-primary mb-1 flex items-center">
+            <span class="ptg-required">{{ 'dataEntry.pageTransferForm.generalInfoBlock.dateLabel' | translate }}</span>
+            <mat-icon
+              *ngIf="isEditable"
+              aria-hidden="false"
+              [attr.aria-label]="'dataEntry.pageTransferForm.generalInfoBlock.editDateAriaLabel' | translate"
+              class="text-neutral-400 cursor-pointer ml-2"
+              (click)="makeDateEditable()"
+              parteng-requires-permission="update"
+              parteng-requires-resource="transfers"
+              >edit</mat-icon
+            >
+          </div>
+          <div class="text-sm font-semibold">{{ form.get('date')?.value | date: 'shortDate' }}</div>
+        </div>
+        <ng-template #datePicker>
+          <mat-form-field appearance="outline" (click)="picker.open()">
+            <mat-label>{{ 'dataEntry.pageTransferForm.generalInfoBlock.dateLabel' | translate }}</mat-label>
+            <input
+              formControlName="date"
+              matInput
+              [min]="minDate"
+              [matDatepicker]="picker"
+              (dateChange)="onDateChanged($event)"
+              autocomplete="off"
+              readonly="readonly"
+            />
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </ng-template>
+      </div>
+
+      <!----- Transfer Type ----->
+      <div>
+        <div class="mb-4" *ngIf="transfer.transferType && !isTransferTypeEditable; else transferTypeDropdown">
+          <div class="text-xs text-blue-ptg-primary mb-1">
+            <span class="ptg-required">{{
+              'dataEntry.pageTransferForm.generalInfoBlock.transferTypeLabel' | translate
+            }}</span>
+            <mat-icon
+              *ngIf="transfer.transferInstruments.length === 0"
+              aria-hidden="false"
+              [attr.aria-label]="'dataEntry.pageTransferForm.generalInfoBlock.editTransferTypeAriaLabel' | translate"
+              class="text-neutral-400 cursor-pointer ml-2"
+              (click)="makeTransferTypeEditable()"
+              >edit</mat-icon
+            >
+          </div>
+          <div class="text-sm font-semibold">{{ transfer.transferType.name }}</div>
+          <div
+            class="text-xs italic text-blue-ptg-primary mt-2 p-3 border border-gray-300 rounded inline-block"
+            *ngIf="transfer.transferType.comment"
+          >
+            {{ transfer.transferType.comment }}
+          </div>
+        </div>
+        <ng-template #transferTypeDropdown>
+          <mat-form-field appearance="outline" class="w-96">
+            <mat-label>{{ 'dataEntry.pageTransferForm.generalInfoBlock.transferTypeLabel' | translate }}</mat-label>
+            <input
+              type="text"
+              [placeholder]="'dataEntry.pageTransferForm.generalInfoBlock.pickTransferType' | translate"
+              [attr.aria-label]="'dataEntry.pageTransferForm.generalInfoBlock.transferTypeLabel' | translate"
+              matInput
+              formControlName="transferType"
+              [matAutocomplete]="auto"
+            />
+            <mat-autocomplete
+              autoActiveFirstOption
+              #auto="matAutocomplete"
+              [displayWith]="displayTransferTypeFn"
+              (optionSelected)="onTransferTypeSelected($event)"
+            >
+              <mat-option
+                *ngFor="let transferType of filteredTransferTypes$ | async"
+                [value]="transferType"
+                (mouseover)="onTransferTypeMouseOver($event, transferType)"
+                (mouseout)="onTransferTypeMouseOver($event)"
+              >
+                {{ transferType.name }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+          <span class="text-gray-500 ml-3">{{ hoveredTransferType?.comment }}</span>
+        </ng-template>
+      </div>
+
+      <!-- Comment -->
+      <div>
+        <div class="mb-4" *ngIf="!isNew && !isCommentEditable; else commentField">
+          <div class="text-xs text-blue-ptg-primary mb-1">
+            <span>{{ 'dataEntry.pageTransferForm.generalInfoBlock.commentLabel' | translate }}</span>
+            <mat-icon
+              *ngIf="isEditable"
+              aria-hidden="false"
+              [attr.aria-label]="'dataEntry.pageTransferForm.generalInfoBlock.editCommentAriaLabel' | translate"
+              class="text-neutral-400 cursor-pointer ml-2"
+              (click)="makeCommentEditable()"
+              parteng-requires-permission="update"
+              parteng-requires-resource="transfers"
+              >edit</mat-icon
+            >
+          </div>
+          <div class="text-sm font-semibold">
+            <span *ngIf="transfer.comment; else noComment">{{ transfer.comment }}</span>
+            <ng-template #noComment>-</ng-template>
+          </div>
+        </div>
+        <ng-template #commentField>
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ 'dataEntry.pageTransferForm.generalInfoBlock.commentLabel' | translate }}</mat-label>
+            <textarea matInput formControlName="comment" rows="5"></textarea>
+          </mat-form-field>
+        </ng-template>
+      </div>
+    </parteng-transfer-form-block>
+
+    <!------------------------>
+    <!----- Instruments ----->
+    <!------------------------>
+
+    <parteng-transfer-form-block
+      [title]="'dataEntry.pageTransferForm.instrumentsBlock.title' | translate"
+      [isDisabled]="instrumentFields.length === 0 || !isGeneralInfoComplete"
+    >
+      <div class="flex justify-between items-start">
+        <div class="flex-auto">
+          <parteng-transfer-instrument-field
+            *ngFor="let instrumentField of instrumentFields; let i = index"
+            [index]="i"
+            [instrumentField]="instrumentField"
+            [transferInstrument]="transfer.transferInstruments[i]"
+            [isEditable]="isEditable"
+            [isActive]="isFormSectionActive('transfer_instrument_' + i)"
+            (activate)="activateFormSection('transfer_instrument_' + i)"
+          ></parteng-transfer-instrument-field>
+        </div>
+        <div class="flex-none ml-20">
+          <p *ngIf="transfer.transferSetup">
+            Format du mouvement créé :<br />
+            {{ transfer.transferSetup.description }} (id {{ transfer.transferSetup.id }})
+          </p>
+        </div>
+      </div>
+    </parteng-transfer-form-block>
+
+    <!------------------->
+    <!----- Persons ----->
+    <!------------------->
+
+    <parteng-transfer-form-block
+      [title]="'dataEntry.pageTransferForm.personsBlock.title' | translate"
+      [isDisabled]="!transfer.transferSetup"
+    >
+      <parteng-transfer-person-field
+        *ngFor="let personField of personFields; let i = index"
+        [index]="i"
+        [personField]="personField"
+        [transferPerson]="transfer.transferPersons[i]"
+        [parentProject]="transfer.parentProject"
+        [isEditable]="isEditable"
+        [isActive]="isFormSectionActive('transfer_person_' + i)"
+        (activate)="activateFormSection('transfer_person_' + i)"
+      ></parteng-transfer-person-field>
+    </parteng-transfer-form-block>
+
+    <!-------------------------------->
+    <!----- Quantities / Amounts ----->
+    <!-------------------------------->
+
+    <parteng-transfer-form-block
+      [title]="'dataEntry.pageTransferForm.quantitiesAmountsBlock.title' | translate"
+      [isDisabled]="!isPersonFieldsComplete"
+    >
+      <p class="italic">{{ 'dataEntry.pageTransferForm.quantitiesAmountsBlock.description' | translate }}</p>
+      <parteng-transfer-qty-amount-field
+        *ngFor="let setupInstrument of transfer.transferSetup?.setupInstruments; let i = index"
+        [index]="i"
+        [setupInstrument]="setupInstrument"
+        [transferInstrument]="transfer.transferInstruments[i]"
+        [isEditMode]="isNew"
+        [isEditable]="isEditable"
+        [isActive]="isFormSectionActive('transfer_qty_amount_' + i)"
+        (activate)="activateFormSection('transfer_qty_amount_' + i)"
+        (fieldStatusChanged)="onQtyAmountFieldStatusChanged($event)"
+      ></parteng-transfer-qty-amount-field>
+    </parteng-transfer-form-block>
+
+    <!------------------------>
+    <!----- Form Buttons ----->
+    <!------------------------>
+
+    <div class="flex justify-end" *ngIf="transfer.validation_status !== VALIDATION_STATUS.VALIDATED">
+      <p class="text-sm italic my-6">
+        {{
+          (isNew ? 'dataEntry.pageTransferForm.buttons.hintCreate' : 'dataEntry.pageTransferForm.buttons.hintUpdate')
+            | translate
+        }}
+      </p>
+    </div>
+
+    <div class="flex justify-end items-baseline">
+      <button type="button" mat-flat-button class="mr-4" (click)="clickCancel()">
+        {{
+          (isNew || (!isNew && form.dirty) ? 'shared.buttonLabels.cancel' : 'shared.buttonLabels.goBack') | translate
+        }}
+      </button>
+      <button *ngIf="isDeletable" type="button" mat-stroked-button color="warn" class="mr-4" (click)="clickDelete()"
+              parteng-requires-permission="delete"
+              parteng-requires-resource="transfers"
+              data-test-id="transfer-delete-button"
+      >
+        {{ 'dataEntry.pageTransferForm.buttons.delete' | translate }}
+      </button>
+      <button
+        type="button"
+        mat-stroked-button
+        class="mr-4"
+        [disabled]="!form.dirty || isFormInvalid"
+        (click)="clickSubmitThenDuplicate()"
+        *ngIf="isNew && canDuplicateTransfer"
+        parteng-requires-permission="create"
+        parteng-requires-resource="transfers"
+      >
+        {{ 'shared.buttonLabels.validateAndCreateAgain' | translate }}
+      </button>
+      <button
+        type="button"
+        mat-stroked-button
+        class="mr-4"
+        [disabled]="form.dirty || isFormInvalid"
+        (click)="clickDuplicate()"
+        *ngIf="!isNew && canDuplicateTransfer"
+        parteng-requires-permission="update"
+        parteng-requires-resource="transfers"
+        data-test-id="transfer-validate-dup-button"
+      >
+        {{ 'shared.buttonLabels.createAgain' | translate }}
+      </button>
+      <button
+        *ngIf="isEditable"
+        type="submit"
+        mat-raised-button
+        color="primary"
+        [disabled]="!form.dirty || isFormInvalid"
+        parteng-requires-permission="update"
+        parteng-requires-resource="transfers"
+        data-test-id="transfer-validate-button"
+      >
+        {{ 'dataEntry.pageTransferForm.buttons.validate' | translate }}
+      </button>
+    </div>
+  </form>
+</section>

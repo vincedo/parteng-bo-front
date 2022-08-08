@@ -1,0 +1,54 @@
+<div class="h-full flex flex-col">
+  <parteng-error-block [error]="backendError"></parteng-error-block>
+  <!-- Filters -->
+  <div class="flex-none">
+    <parteng-transfers-list-filters
+      [textFilter]="textFilter"
+      [statusFilter]="statusFilter"
+      [categoriesFilter]="categoriesFilter"
+      [sourceFilter]="sourceFilter"
+      [allTransferCategories]="allTransferCategories"
+      (textFilterChanged)="onTextFilterChanged($event)"
+      (statusFilterChanged)="onStatusFilterChanged($event)"
+      (categoriesFilterChanged)="onCategoriesFilterChanged($event)"
+      (sourceFilterChanged)="onSourceFilterChanged($event)"
+      (resetFilters)="resetFilters()"
+    ></parteng-transfers-list-filters>
+  </div>
+  <!-- List of Transfers (if any) -->
+  <div class="mt-6 flex-auto overflow-y-auto" *ngIf="allTransferItems.length > 0; else noTransferFound">
+    <parteng-transfers-list-table
+      [transferItems]="filteredTransferItems"
+      [selectedTransferItem]="selectedTransferItem"
+      [showFolderColumn]="!parentFolder"
+      (rowClicked)="onTransferClicked($event)"
+    ></parteng-transfers-list-table>
+  </div>
+  <!-- "No transfer found" Message -->
+  <ng-template #noTransferFound>
+    <div class="flex-auto p-12 text-xl font-light">
+      <ng-container *ngIf="parentFolder">
+        {{ 'dataEntry.pageTransfersList.noTransferFoundInFolder' | translate: { folderName: parentFolder.long_name } }}
+      </ng-container>
+      <ng-container *ngIf="parentProject && !parentFolder">
+        {{
+          'dataEntry.pageTransfersList.noTransferFoundInProject' | translate: { projectName: parentProject.long_name }
+        }}
+      </ng-container>
+    </div>
+  </ng-template>
+  <!-- Selected Transfer -->
+  <div class="flex-none h-[95px]">
+    <div
+      class="h-full bg-neutral-100 mt-2 p-4 rounded-lg border-2"
+      [ngClass]="{ 'border-blue-ptg-secondary-500': !!selectedTransfer }"
+    >
+      <h3 class="mb-2 text-xs text-neutral-400">
+        {{ 'dataEntry.pageTransfersList.footer.additionalInfoTitle' | translate }}
+      </h3>
+      <ng-container *ngIf="selectedTransfer?.comment; else noComment">{{ selectedTransfer?.comment }}</ng-container>
+      <ng-template #noComment>-</ng-template>
+    </div>
+  </div>
+  <div class="flex-none"></div>
+</div>

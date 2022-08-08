@@ -1,0 +1,102 @@
+---
+apiVersion: {{ template "app.deployment.apiVersion" . }}
+kind: Deployment
+metadata:
+  name: deploy-{{ template "app.name" . }}
+  labels:
+    heritage: {{ .Release.Service | quote }}
+    release: {{ .Release.Name | quote }}
+    chart: "{{ .Chart.Name }}"
+    app: "{{ template "app.name" . }}"
+    {{- range $key, $value := .Values.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  revisionHistoryLimit: 1
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: "{{ template "app.name" . }}"
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      name: "{{ template "app.name" . }}"
+      labels:
+        heritage: {{ .Release.Service | quote }}
+        release: {{ .Release.Name | quote }}
+        chart: "{{ .Chart.Name }}"
+        app: "{{ template "app.name" . }}"
+        {{- range $key, $value := .Values.labels }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+        {{/* This forces a restart if the configmap has changed */}}
+        checksum/sidecar-entrypoint: {{ include (print .Template.BasePath "/sidecar-entrypoint.yaml") . | sha256sum | trunc 63 }}
+        checksum/sidecar-configmap: {{ include (print .Template.BasePath "/sidecar-configmap.yaml") . | sha256sum | trunc 63 }}
+        checksum/nginx-vhost: {{ include (print .Template.BasePath "/nginx-vhost.yaml") . | sha256sum | trunc 63 }}
+        checksum/commit-id: {{ .Chart.Annotations.commitId }}
+    spec:
+      imagePullSecrets:
+        - name: docker-registry
+      containers:
+        - name: po-{{ template "app.name" . }}
+          image: {{ .Values.nginx.image | default "nginx" }}:{{ .Values.nginx.imageTag | default "stable" }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.httpPort }}
+              name: port-{{ .Values.httpPort }}
+              protocol: TCP
+          {{- with .Values.resources }}
+          resources:
+            limits:
+              memory: {{ .memoryLimit | default "256Mi" }}
+              cpu: {{ .cpuLimit | default "100m" }}
+            requests:
+              memory: {{ .memoryRequests | default "256Mi" }}
+              cpu: {{ .cpuRequests | default "100m" }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /usr/share/nginx/html
+              name: empty-app
+            - mountPath: /etc/nginx/conf.d
+              name: cm-{{ template "app.name" . }}-nginx-vhost
+      initContainers:
+        - command:
+            - sh
+            - /entrypoint/sidecar-entrypoint.sh
+          image: {{ .Values.repository }}/{{ .Values.image }}:{{ .Chart.Version }}
+          imagePullPolicy: Always
+          name: po-sidecar-{{ template "app.name" . }}
+          envFrom:
+            - configMapRef:
+                name: cm-{{ template "app.name" . }}-sidecar
+          volumeMounts:
+            - mountPath: /entrypoint/sidecar-entrypoint.sh
+              name: cm-{{ template "app.name" . }}-sidecar-entrypoint
+              subPath: sidecar-entrypoint.sh
+            - mountPath: /app-copy
+              name: empty-app
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: cm-{{ template "app.name" . }}-sidecar
+          name: cm-{{ template "app.name" . }}-sidecar
+        - configMap:
+            defaultMode: 420
+            name: cm-{{ template "app.name" . }}-sidecar-entrypoint
+          name: cm-{{ template "app.name" . }}-sidecar-entrypoint
+        - emptyDir: {}
+          name: empty-app
+        - configMap:
+            defaultMode: 420
+            name: cm-{{ template "app.name" . }}-nginx-vhost
+          name: cm-{{ template "app.name" . }}-nginx-vhost

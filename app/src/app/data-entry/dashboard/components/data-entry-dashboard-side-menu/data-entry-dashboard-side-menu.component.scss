@@ -1,0 +1,8 @@
+.folder {
+  @apply bg-blue-ptg-secondary-060 text-blue-ptg-primary;
+}
+
+.selected-folder {
+  @apply bg-blue-ptg-primary;
+  @apply text-white;
+}

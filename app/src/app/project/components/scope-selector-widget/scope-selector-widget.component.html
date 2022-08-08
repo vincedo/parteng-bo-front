@@ -1,0 +1,19 @@
+<div class="scope-selector-widget my-2">
+  <!-- Selected Scopes -->
+  <div class="columns-3 my-4">
+    <div *ngFor="let scope of scopes">
+      <mat-checkbox
+        [checked]="isScopeCheckboxChecked(scope)"
+        [value]="scope.id.toString()"
+        (change)="toggleScopeCheckbox($event)"
+        >{{ scope.code }} - {{ scope.name }}</mat-checkbox
+      >
+    </div>
+  </div>
+  <!-- Add Scope -->
+  <div>
+    <button type="button" mat-stroked-button (click)="clickOpenScopeSelector()">
+      {{ 'project.scopeSelectorWidget.addScope' | translate }}
+    </button>
+  </div>
+</div>

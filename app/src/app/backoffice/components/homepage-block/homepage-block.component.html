@@ -1,0 +1,22 @@
+<div
+  class="homepage-block relative box-border w-[280px] h-[280px] p-7 rounded-[10px] bg-white drop-shadow-xl flex flex-col justify-between items-center hover:drop-shadow-none hover:shadow"
+>
+  <!-- disabled overlay -->
+  <div *ngIf="isDisabled" class="absolute top-0 left-0 z-10 w-[280px] h-[280px] rounded-lg bg-white opacity-50"></div>
+  <img [src]="icon" [alt]="title" class="w-[50px] h-[50px]" />
+  <h3 class="p-0 m-0 text-lg uppercase text-blue-ptg-primary border-b-2 border-blue-ptg-primary-primary-800 pb-5">
+    {{ title }}
+  </h3>
+  <p class="text-center text-sm text-black-ptg">
+    {{ description }}
+  </p>
+  <button
+    color="primary"
+    type="button"
+    mat-raised-button
+    (click)="clickButton()"
+    class="w-full bg-blue-ptg-secondary rounded-md text-white text-sm py-3 px-2"
+  >
+    {{ buttonLabel }}
+  </button>
+</div>

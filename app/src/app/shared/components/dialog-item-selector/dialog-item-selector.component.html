@@ -1,0 +1,79 @@
+<section class="dialog-item-selector">
+  <parteng-dialog
+    [title]="dialogTitle"
+    [description]="dialogDescription"
+    [isSubmitDisabled]="selectedItems.length === 0 || !isDirty"
+    [showSelectButton]="!isMonoSelection"
+    [isSelectBtnDisabled]="!highlightedItem"
+    [dialogButtonColumnsSplitPoint]="dialogColumnsSplitPoint"
+    submitBtnTranslateKey="shared.buttonLabels.validateSelection"
+    (safeClose)="safeCloseDialog()"
+    (selectHighlighted)="onSelectHighlighted()"
+    (cancel)="closeDialog()"
+    (submit)="submitSelectedItems()"
+  >
+    <div class="add-item-button" *ngIf="!hideAddItemButton">
+      <ng-content select="button"></ng-content>
+    </div>
+
+    <div class="grid gap-4" [ngClass]="isMonoSelection ? 'grid-cols-1' : 'grid-cols-6'">
+      <!-- LEFT COLUMN -- Selectable Items -->
+      <div class="h-96 flex flex-col" [ngClass]="isMonoSelection ? '' : 'col-span-4'">
+        <!-- Filter Field -->
+        <div class="flex-none">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'shared.dialogItemSelector.searchFieldLabel' | translate }}</mat-label>
+            <input matInput [(ngModel)]="filterText" (input)="onFilterTextChanged()" cdkFocusInitial />
+            <mat-icon matSuffix class="text-blue-ptg-primary-800">search</mat-icon>
+          </mat-form-field>
+        </div>
+        <!-- List of Selectable Items -->
+        <div class="flex-auto overflow-y-auto mb-1">
+          <parteng-item-selector-table
+            [columnDefs]="columnDefs"
+            [items]="filteredItems"
+            [selectedItems]="selectedItems"
+            [highlightedItem]="highlightedItem"
+            (rowClicked)="onRowClicked($event)"
+          ></parteng-item-selector-table>
+        </div>
+        <!-- Highlighted Item - Additional Info -->
+        <div class="flex-none h-28 bg-neutral-100 mt-2 p-3 rounded-lg">
+          <h3 class="text-xs text-neutral-400 mb-0">{{ itemAdditionalInfoTitle }}</h3>
+          <ng-container *ngIf="highlightedItem">
+            <ng-container *ngTemplateOutlet="itemAdditionalInfoHTML; context: { item: highlightedItem }"></ng-container>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -- Selected Items -->
+      <div class="h-96 col-span-2 flex flex-col bg-neutral-100 p-4 rounded-lg" *ngIf="!isMonoSelection">
+        <!-- Header -->
+        <div class="flex-none">
+          <h3>{{ selectedItemsTitle }}</h3>
+          <p class="text-xs" [innerHTML]="selectedItemsDescription"></p>
+        </div>
+        <!-- List of Selected Items -->
+        <div #selectedItemsDiv class="flex-auto overflow-auto bg-white p-5 border-2 border-neutral-300 border-dashed">
+          <div
+            *ngFor="let item of selectedItems"
+            class="flex items-baseline bg-blue-ptg-secondary-060 p-3 mb-2 rounded"
+          >
+            <div class="flex-auto">
+              <ng-container *ngTemplateOutlet="selectedItemPreviewHTML; context: { item: item }"></ng-container>
+            </div>
+            <div class="flex-none">
+              <mat-icon
+                aria-hidden="false"
+                [attr.aria-label]="'shared.dialogItemSelector.unselectItem' | translate"
+                (click)="unselectItem(item)"
+                class="cursor-pointer"
+                >clear</mat-icon
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </parteng-dialog>
+</section>

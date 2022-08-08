@@ -1,0 +1,122 @@
+<div
+  class="flex transfer-qty-amount-field p-4 mb-4 rounded border"
+  [ngClass]="isActive ? 'border-blue-ptg-primary' : 'border-neutral-300'"
+>
+  <div>
+    <div class="text-sm mb-2">
+      {{ setupInstrument.instrument_designation }} :
+      <span class="font-semibold">{{ transferInstrument.$instrument.name }}</span>
+      <mat-icon
+        *ngIf="isEditable"
+        aria-hidden="false"
+        [attr.aria-label]="'dataEntry.pageTransferForm.quantitiesAmountsBlock.editQtyAmount' | translate"
+        class="text-neutral-400 cursor-pointer ml-2"
+        [class.invisible]="isEditMode"
+        (click)="edit()"
+        parteng-requires-permission="update"
+        parteng-requires-resource="transfers"
+        >edit</mat-icon
+      >
+    </div>
+
+    <!----------------------->
+    <!-- NON-EDITABLE VIEW -->
+    <!----------------------->
+
+    <div class="flex" [class.hidden]="isEditMode">
+      <!-- Quantity -->
+      <div class="field-item pr-7" [class.invisible]="!setupInstrument.input_designation_quantity">
+        <div class="label">{{ setupInstrument.input_designation_quantity }}</div>
+        <div class="value">{{ form.get('input_quantity')?.value }}</div>
+      </div>
+      <!-- Accounting Value (unit + total) -->
+      <div
+        class="flex px-7 relative"
+        [class.left-border2]="
+          setupInstrument.input_designation_accounting_unit_value ||
+          setupInstrument.input_designation_accounting_total_amount
+        "
+      >
+        <div class="field-item" [class.invisible]="!setupInstrument.input_designation_accounting_unit_value">
+          <div class="label">{{ setupInstrument.input_designation_accounting_unit_value }}</div>
+          <div class="value">{{ form.get('input_accounting_unit_value')?.value | currency: 'EUR' }}</div>
+        </div>
+        <div class="field-item" [class.invisible]="!setupInstrument.input_designation_accounting_total_amount">
+          <div class="label">{{ setupInstrument.input_designation_accounting_total_amount }}</div>
+          <div class="value">{{ form.get('input_accounting_total_amount')?.value | currency: 'EUR' }}</div>
+        </div>
+      </div>
+      <!-- Actual Value (unit + total) -->
+      <div
+        class="flex pl-7 relative"
+        [class.left-border2]="
+          setupInstrument.input_designation_actual_unit_value || setupInstrument.input_designation_actual_total_amount
+        "
+      >
+        <div class="field-item" [class.invisible]="!setupInstrument.input_designation_actual_unit_value">
+          <div class="label">{{ setupInstrument.input_designation_actual_unit_value }}</div>
+          <div class="value">{{ form.get('input_actual_unit_value')?.value | currency: 'EUR' }}</div>
+        </div>
+        <div class="field-item" [class.invisible]="!setupInstrument.input_designation_actual_total_amount">
+          <div class="label">{{ setupInstrument.input_designation_actual_total_amount }}</div>
+          <div class="value">{{ form.get('input_actual_total_amount')?.value | currency: 'EUR' }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-------------------------->
+    <!-- EDITABLE VIEW (FORM) -->
+    <!-------------------------->
+
+    <form [formGroup]="form" class="flex" [class.hidden]="!isEditMode">
+      <!-- Quantity -->
+      <div class="pr-7" [class.invisible]="!setupInstrument.input_designation_quantity">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ setupInstrument.input_designation_quantity }}</mat-label>
+          <input type="number" matInput formControlName="input_quantity" (focus)="activateForm()" />
+        </mat-form-field>
+      </div>
+      <!-- Accounting Value (unit + total) -->
+      <div
+        class="flex px-7 relative"
+        [class.left-border]="
+          setupInstrument.input_designation_accounting_unit_value ||
+          setupInstrument.input_designation_accounting_total_amount
+        "
+      >
+        <div [class.invisible]="!setupInstrument.input_designation_accounting_unit_value">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ setupInstrument.input_designation_accounting_unit_value }}</mat-label>
+            <input type="number" matInput formControlName="input_accounting_unit_value" (focus)="activateForm()" />
+          </mat-form-field>
+        </div>
+        <div class="ml-4" [class.invisible]="!setupInstrument.input_designation_accounting_total_amount">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ setupInstrument.input_designation_accounting_total_amount }}</mat-label>
+            <input type="number" matInput formControlName="input_accounting_total_amount" (focus)="activateForm()" />
+          </mat-form-field>
+        </div>
+      </div>
+      <!-- Actual Value (unit + total) -->
+      <div
+        class="flex pl-7 relative"
+        [class.left-border]="
+          setupInstrument.input_designation_actual_unit_value || setupInstrument.input_designation_actual_total_amount
+        "
+      >
+        <div [class.invisible]="!setupInstrument.input_designation_actual_unit_value">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ setupInstrument.input_designation_actual_unit_value }}</mat-label>
+            <input type="number" matInput formControlName="input_actual_unit_value" (focus)="activateForm()" />
+          </mat-form-field>
+        </div>
+        <div class="ml-4" [class.invisible]="!setupInstrument.input_designation_actual_total_amount">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ setupInstrument.input_designation_actual_total_amount }}</mat-label>
+            <input type="number" matInput formControlName="input_actual_total_amount" (focus)="activateForm()" />
+          </mat-form-field>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

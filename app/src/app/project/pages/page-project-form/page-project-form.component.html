@@ -1,0 +1,52 @@
+<section *ngIf="formState$ | async as formState" class="page-project-form w-[1240px] mx-auto py-6">
+  <div class="mb-8">
+    <parteng-page-title
+      [title]="
+        isNew
+          ? ('project.pageProjectForm.titleNewProject' | translate)
+          : ('project.pageProjectForm.titleExistingProject' | translate: { projectName: formState.project?.longName })
+      "
+    ></parteng-page-title>
+    <parteng-breadcrumb
+      [breadcrumb]="[
+        { label: 'project.pageProjectsList.title' | translate, path: isNew ? '../list' : '../../list' },
+        {
+          label: isNew
+            ? ('project.pageProjectForm.titleNewProject' | translate)
+            : ('project.pageProjectForm.titleExistingProject' | translate: { projectName: formState.project?.longName })
+        }
+      ]"
+    ></parteng-breadcrumb>
+  </div>
+
+  <div class="grid grid-cols-6 gap-5">
+    <!-- Content Area -->
+    <div class="col-span-4">
+      <h1 class="ptg-page-title">
+        <span class="prefix">{{ 'project.pageProjectForm.titlePrefix' | translate }}</span>
+        {{
+          isNew
+            ? ('project.pageProjectForm.titleNewProject' | translate)
+            : ('project.pageProjectForm.titleExistingProject' | translate: { projectName: formState.project?.longName })
+        }}
+      </h1>
+
+      <parteng-project-form
+        *ngIf="formState.project"
+        [isNew]="isNew"
+        [project]="formState.project"
+        [projectTemplates]="formState.projectTemplates"
+        [projectTemplate]="formState.template"
+        [allStandardFolders]="formState.allStandardFolders"
+        [formSectionsState]="formState.formSectionsState"
+        [backendError]="formState.backendError"
+        (validateSelectedTemplate)="onValidateTemplateChoice($event)"
+        (projectIdentificationChanged)="onProjectIdentificationChanged($event)"
+        (projectIdentificationSubmitted)="onProjectIdentificationSubmitted($event)"
+        (cancel)="onCancel()"
+        (delete)="onDelete($event)"
+        (formSubmitted)="onFormSubmitted($event)"
+      ></parteng-project-form>
+    </div>
+  </div>
+</section>

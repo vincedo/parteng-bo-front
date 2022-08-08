@@ -1,0 +1,101 @@
+<section class="scope-form2">
+  <div *ngIf="mode === 'view'; else showForm" class="flex justify-between w-full">
+    <!-- Fields -->
+    <div class="fields">
+      <div class="field">
+        <span class="label">{{ 'project.scopeForm.code' | translate }}</span>
+        <span class="value">{{ scope.code }}</span>
+      </div>
+      <div class="field">
+        <span class="label">{{ 'project.scopeForm.name' | translate }}</span>
+        <span class="value">{{ scope.name }}</span>
+      </div>
+      <div class="field">
+        <span class="label">{{ 'project.scopeForm.historicalNames' | translate }}</span>
+        <span class="value">{{ scope.historicalName || '-' }}</span>
+      </div>
+      <div class="field">
+        <span class="label">{{ 'project.scopeForm.city' | translate }}</span>
+        <span class="value">{{ scope.city || '-' }}</span>
+      </div>
+      <div class="field">
+        <span class="label">{{ 'project.scopeForm.worlds' | translate }}</span>
+        <span class="value">{{ stringifyScopeWorlds(scope) }}</span>
+      </div>
+      <div class="field">
+        <span class="label">{{ 'project.scopeForm.comment' | translate }}</span
+        ><br />
+        <span class="value">{{ scope.comment || '-' }}</span>
+      </div>
+    </div>
+    <!-- Edit Icon -->
+    <div>
+      <mat-icon
+        aria-hidden="false"
+        [attr.aria-label]="'dataEntry.pageTransferForm.personsBlock.selectPerson' | translate"
+        class="text-neutral-400 cursor-pointer ml-2"
+        (click)="switchToEditMode()"
+        parteng-requires-permission="update"
+        parteng-requires-resource="scopes"
+        data-testId="scope-update-button"
+        >edit</mat-icon
+      >
+    </div>
+  </div>
+
+  <ng-template #showForm>
+    <parteng-error-block [error]="backendError"></parteng-error-block>
+
+    <form [formGroup]="form" *ngIf="form" (ngSubmit)="submit()">
+      <div>
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>{{ 'project.scopeForm.code' | translate }}</mat-label>
+          <input matInput formControlName="code" cdkFocusInitial />
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>{{ 'project.scopeForm.name' | translate }}</mat-label>
+          <input matInput formControlName="name" />
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>{{ 'project.scopeForm.historicalNames' | translate }}</mat-label>
+          <input matInput formControlName="historical_name" />
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>{{ 'project.scopeForm.city' | translate }}</mat-label>
+          <input matInput formControlName="city" />
+        </mat-form-field>
+      </div>
+
+      <div formGroupName="worlds" *ngIf="isWorldsFieldReady">
+        <mat-label [ngClass]="{ 'text-neutral-600': !isWorldsInvalid, 'text-red-ptg-alert': isWorldsInvalid }"
+          >{{ 'project.scopeForm.worlds' | translate }} *</mat-label
+        >
+        <parteng-error-block
+          *ngIf="isWorldsInvalid"
+          [error]="'project.scopeForm.atLeastOneWorldRequired' | translate"
+        ></parteng-error-block>
+        <div class="columns-2 py-2">
+          <div *ngFor="let world of worlds" class="p-2">
+            <mat-checkbox [formControlName]="world.id">{{ world.name }}</mat-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <mat-form-field appearance="fill" class="w-full">
+          <mat-label>{{ 'project.scopeForm.comment' | translate }}</mat-label>
+          <textarea matInput formControlName="comment" rows="5"></textarea>
+        </mat-form-field>
+      </div>
+    </form>
+  </ng-template>
+</section>

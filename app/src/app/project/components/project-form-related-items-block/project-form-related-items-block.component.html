@@ -1,0 +1,50 @@
+<parteng-project-form-block
+  [title]="title"
+  [editIconName]="editIconName"
+  [canEdit]="canEdit"
+  [isDisabled]="isDisabled"
+  [numItems]="items.length"
+  [isActive]="isActive"
+  (editClicked)="addEditButtonClicked.emit()"
+>
+  <!-- Selected Items -->
+  <div *ngIf="items.length > 0" class="my-3">
+    <!-- Option 1 - Display selected items vertically -->
+    <div
+      *ngIf="axis === 'vertical'"
+      class="flex flex-col items-list"
+      cdkDropList
+      (cdkDropListDropped)="onDraggedItemWasDropped($event)"
+    >
+      <div
+        cdkDrag
+        *ngFor="let item of items; let index = index; let isLast = last"
+        class="bg-blue-ptg-secondary-060 rounded p-3 px-4 mb-2 w-30 item-row"
+        [class.mb-0]="isLast"
+      >
+        <ng-container
+          *ngTemplateOutlet="selectedItemPreviewHTML; context: { item: item, index: index, isDisabled: isDisabled }"
+        ></ng-container>
+      </div>
+    </div>
+    <!-- Option 1 - Display selected items horizontally -->
+    <div *ngIf="axis === 'horizontal'" class="flex flex-row flex-wrap">
+      <div
+        *ngFor="let item of items; let index = index; let isLast = last"
+        class="bg-blue-ptg-secondary-060 rounded p-3 px-4 mb-2 mr-2"
+      >
+        <ng-container
+          *ngTemplateOutlet="selectedItemPreviewHTML; context: { item: item, index: index, isDisabled: isDisabled }"
+        ></ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Button -->
+  <div *ngIf="items.length === 0">
+    <button type="button" mat-stroked-button (click)="addEditButtonClicked.emit()"
+    [disabled]="!canEdit">
+      {{ addButtonLabel }}
+    </button>
+  </div>
+</parteng-project-form-block>

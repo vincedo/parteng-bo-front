@@ -1,0 +1,49 @@
+<!----- DROPDOWN -- BEFORE user chooses a template ----->
+<div *ngIf="!isDisabled">
+  <p class="text-base font-semibold">{{ 'project.pageProjectForm.templateBlock.title' | translate }}</p>
+  <p class="text-sm font-normal">{{ 'project.pageProjectForm.templateBlock.description' | translate }}</p>
+  <div>
+    <mat-form-field appearance="fill" class="w-full">
+      <mat-label>{{ 'project.pageProjectForm.templateBlock.label' | translate }}</mat-label>
+      <select matNativeControl (change)="changeTemplateChoice($event)">
+        <option value="" disabled selected></option>
+        <option [value]="0" [selected]="projectTemplate?.id === 0">
+          {{ 'project.pageProjectForm.templateBlock.noTemplate' | translate }}
+        </option>
+        <option
+          *ngFor="let template of allProjectTemplates"
+          [value]="template.id"
+          [selected]="projectTemplate?.id === template.id"
+        >
+          {{ template.name }}
+        </option>
+      </select>
+    </mat-form-field>
+  </div>
+  <div class="flex justify-end items-baseline">
+    <p class="text-sm font-semibold pr-4">
+      {{ 'project.pageProjectForm.templateBlock.yourChoice' | translate: { templateName: selectedTemplateName } }}
+    </p>
+    <button
+      type="button"
+      mat-raised-button
+      color="primary"
+      [disabled]="selectedTemplateId === undefined"
+      (click)="submitTemplateChoice()"
+    >
+      {{ 'shared.buttonLabels.validate' | translate }}
+    </button>
+  </div>
+</div>
+
+<!----- AFTER user has submitted their template choice ----->
+<div *ngIf="isDisabled">
+  <div
+    [innerHTML]="
+      'project.pageProjectForm.templateBlock.templateApplied'
+        | translate
+          : { templateName: projectTemplate?.name || ('project.pageProjectForm.templateBlock.noTemplate' | translate) }
+    "
+  ></div>
+  <div *ngIf="projectTemplate?.comment" class="italic">{{ projectTemplate?.comment }}</div>
+</div>

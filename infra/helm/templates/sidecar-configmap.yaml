@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-{{ template "app.name" . }}-sidecar
+  labels:
+    heritage: {{ .Release.Service | quote }}
+    release: {{ .Release.Name | quote }}
+    chart: {{ .Chart.Name }}
+    app: "{{ template "app.name" . }}"
+data:
+  SOURCE_DIR: "/app"
+  TARGET_DIR: "/app-copy"
+  TARGET_USER: "33"
+  TARGET_GROUP: "root"

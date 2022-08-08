@@ -1,0 +1,79 @@
+<section *ngIf="formState$ | async as formState" class="page-transfer-form w-[1240px] mx-auto py-6">
+  <div class="mb-8">
+    <parteng-page-title
+      [title]="
+        isNew
+          ? ('dataEntry.pageTransferForm.titleNewTransfer' | translate)
+          : ('dataEntry.pageTransferForm.titleExistingTransfer'
+            | translate
+              : {
+                  transferDate: formState.transfer?.date | date: 'shortDate',
+                  transferType: formState.transfer?.transferType?.name
+                })
+      "
+    ></parteng-page-title>
+    <parteng-breadcrumb
+      [breadcrumb]="[
+        {
+          label: 'dataEntry.pageTransferForm.breadcrumbDataEntry' | translate,
+          clickFn: getOpenProjectSelectorFn()
+        },
+        {
+          label:
+            'dataEntry.pageTransferForm.breadcrumbProject'
+            | translate: { projectName: formState.transfer?.parentProject?.long_name },
+          path: ['/data-entry/projects', formState.transfer?.parentProject?.id]
+        },
+        {
+          label:
+            ('dataEntry.pageTransferForm.breadcrumbFolder'
+              | translate: { folderName: formState.transfer?.parentFolder?.long_name }) +
+            ' - ' +
+            (isNew
+              ? ('dataEntry.pageTransferForm.titleNewTransfer' | translate)
+              : ('dataEntry.pageTransferForm.titleExistingTransfer'
+                | translate
+                  : {
+                      transferDate: formState.transfer?.date | date: 'shortDate',
+                      transferType: formState.transfer?.transferType?.name
+                    }))
+        }
+      ]"
+    ></parteng-breadcrumb>
+  </div>
+
+  <div>
+    <h1 class="ptg-page-title">
+      <span class="prefix">{{ 'dataEntry.pageTransferForm.titlePrefix' | translate }}</span>
+      {{
+        isNew
+          ? ('dataEntry.pageTransferForm.titleNewTransfer' | translate)
+          : ('dataEntry.pageTransferForm.titleExistingTransfer'
+            | translate
+              : {
+                  folderName: formState.transfer?.parentFolder?.long_name,
+                  transferDate: formState.transfer?.date | date: 'shortDate',
+                  transferType: formState.transfer?.transferType?.name
+                })
+      }}
+    </h1>
+    <parteng-transfer-form
+      *ngIf="formState.transfer"
+      [isNew]="isNew"
+      [transfer]="formState.transfer"
+      [transferTypes]="formState.transferTypes"
+      [instrumentFields]="formState.instrumentFields"
+      [personFields]="formState.personFields"
+      [isPersonFieldsComplete]="formState.isPersonFieldsComplete"
+      [isGeneralInfoComplete]="formState.isGeneralInfoComplete"
+      [backendError]="formState.backendError"
+      (dateChanged)="onDateChanged($event)"
+      (transferTypeSelected)="onTransferTypeSelected($event)"
+      (submitThenDuplicate)="onSubmitThenDuplicate($event)"
+      (duplicate)="onDuplicate($event)"
+      (formSubmitted)="onFormSubmitted($event)"
+      (delete)="onDelete($event)"
+      (cancel)="onCancel()"
+    ></parteng-transfer-form>
+  </div>
+</section>

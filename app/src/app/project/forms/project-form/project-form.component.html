@@ -1,0 +1,336 @@
+<section class="project-form">
+  <parteng-error-block [error]="backendError"></parteng-error-block>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <!-------------------------------->
+    <!----- Editing Instructions ----->
+    <!-------------------------------->
+
+    <!--
+    <p class="mb-8" *ngIf="canEdit">
+      <span [innerHTML]="'project.pageProjectForm.editingInstructions.clickPenToEdit' | translate"></span><br />
+      <span [innerHTML]="'project.pageProjectForm.editingInstructions.clickValidateToSave' | translate"></span>
+    </p>
+    -->
+
+    <!---------------------------->
+    <!----- Project Template ----->
+    <!---------------------------->
+
+    <section class="mb-8" *ngIf="isNew">
+      <parteng-project-form-template-selector
+        [projectTemplate]="projectTemplate"
+        [allProjectTemplates]="projectTemplates"
+        [isDisabled]="formSectionsState.isTemplateSelectorDisabled"
+        (validateSelectedTemplate)="submitTemplateChoice($event)"
+      ></parteng-project-form-template-selector>
+    </section>
+
+    <!------------------>
+    <!----- Scopes ----->
+    <!------------------>
+
+    <parteng-project-form-related-items-block
+      [title]="'project.pageProjectForm.scopesBlock.title' | translate"
+      [addButtonLabel]="'project.pageProjectForm.scopesBlock.addScopes' | translate"
+      [items]="projectScopes"
+      [selectedItemPreviewHTML]="scopePreviewHTML"
+      [isDisabled]="formSectionsState.isScopesDisabled"
+      [isActive]="isFormSectionActive('scopes')"
+      [isNew]="isNew"
+      [canEdit]="canEdit && (this.permissionService.isAuthorized$('update', 'projects') | async) === true"
+      [axis]="'horizontal'"
+      (addEditButtonClicked)="clickOpenScopeSelector()"
+    >
+      <!-- Selected Item Preview -->
+      <ng-template #scopePreviewHTML let-scope="item">
+        <div class="flex text-sm">
+          <!-- leading-none -->
+          <div class="w-20 font-semibold">{{ scope.code }}</div>
+          <div>{{ scope.name }}</div>
+        </div>
+      </ng-template>
+    </parteng-project-form-related-items-block>
+
+    <!--------------------------------------------->
+    <!----------- Project Identification ---------->
+    <!--------- Ordinary + Name + Comment --------->
+    <!--------------------------------------------->
+
+    <parteng-project-form-block
+      #projectIdentificationBlock
+      [title]="'project.pageProjectForm.projectIdentificationBlock.title' | translate"
+      [canEdit]="canEdit"
+      [editAsToggle]="true"
+      [isDisabled]="formSectionsState.isProjectIdentificationDisabled"
+      [numItems]="project.name ? 1 : 0"
+      [isActive]="isFormSectionActive('name_comment')"
+      (editClicked)="activateProjectIdentificationInEditMode()"
+      (cancelEditClicked)="cancelNameAndCommentEdition()"
+    >
+      <!-- Ordinary, Name and comment are EDITABLE -->
+      <ng-container *ngIf="isProjectIdentificationInEditMode; else nameAndCommentPreview">
+        <!-- Ordinary -->
+        <div class="mb-4">
+          <label class="text-xs text-blue-ptg-primary-800 ptg-required block mb-2">{{
+            'project.pageProjectForm.projectIdentificationBlock.ordinary' | translate
+          }}</label>
+          <mat-radio-group
+            formControlName="ordinary"
+            [attr.aria-label]="'project.pageProjectForm.projectIdentificationBlock.ordinaryAriaLabel' | translate"
+            [disabled]="formSectionsState.isProjectIdentificationDisabled"
+            (change)="onProjectOrdinaryChanged($event)"
+          >
+            <mat-radio-button [value]="PROJECT_ORDINARY.YES" class="mr-4">{{
+              'project.pageProjectForm.projectIdentificationBlock.ordinaryYes' | translate
+            }}</mat-radio-button>
+            <mat-radio-button [value]="PROJECT_ORDINARY.NO">{{
+              'project.pageProjectForm.projectIdentificationBlock.ordinaryNo' | translate
+            }}</mat-radio-button>
+          </mat-radio-group>
+        </div>
+        <!-- Project Name -->
+        <div [class.mb-10]="!!project.long_name_js">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ 'project.pageProjectForm.projectIdentificationBlock.name' | translate }}</mat-label>
+            <input
+              matInput
+              formControlName="name"
+              [class.disabled]="formSectionsState.isProjectIdentificationDisabled"
+              [disabled]="formSectionsState.isProjectIdentificationDisabled"
+              (input)="onProjectNameChanged($event)"
+              (focus)="onProjectNameOrCommentFocused()"
+            />
+            <mat-hint *ngIf="project.long_name_js">
+              <span class="text-sm text-black-ptg font-semibold">
+                {{ 'project.pageProjectForm.projectIdentificationBlock.longName' | translate }}
+              </span>
+              <br />
+              <span class="text-sm">{{ project.long_name_js }}</span>
+            </mat-hint>
+          </mat-form-field>
+        </div>
+        <!-- Comment -->
+        <div>
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>{{ 'project.pageProjectForm.projectIdentificationBlock.comment' | translate }}</mat-label>
+            <textarea
+              matInput
+              formControlName="comment"
+              [disabled]="formSectionsState.isProjectIdentificationDisabled"
+              (input)="onProjectCommentChanged($event)"
+              (focus)="onProjectNameOrCommentFocused()"
+            ></textarea>
+          </mat-form-field>
+        </div>
+        <div class="flex justify-end items-baseline">
+          <button
+            type="button"
+            mat-stroked-button
+            [disabled]="!isBtnValidateProjectIdentificationEnabled()"
+            (click)="onProjectIdentificationSubmitted()"
+          >
+            {{ 'project.pageProjectForm.projectIdentificationBlock.validate' | translate }}
+          </button>
+        </div>
+      </ng-container>
+      <!-- Ordinary, Name and Comment --- NOT EDITABLE -->
+      <ng-template #nameAndCommentPreview>
+        <div class="mb-4">
+          <div class="text-xs text-blue-ptg-primary mb-2">
+            {{ 'project.pageProjectForm.projectIdentificationBlock.ordinary' | translate }}
+          </div>
+          <div class="text-sm font-semibold">
+            {{
+              (project.ordinary === PROJECT_ORDINARY.YES
+                ? 'project.pageProjectForm.projectIdentificationBlock.ordinaryYes'
+                : 'project.pageProjectForm.projectIdentificationBlock.ordinaryNo'
+              ) | translate
+            }}
+          </div>
+        </div>
+        <div class="mb-4">
+          <div class="text-xs text-blue-ptg-primary mb-2">
+            {{ 'project.pageProjectForm.projectIdentificationBlock.name' | translate }}
+          </div>
+          <div class="text-sm font-semibold">{{ project.longName }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-blue-ptg-primary mb-2">
+            {{ 'project.pageProjectForm.projectIdentificationBlock.comment' | translate }}
+          </div>
+          <div class="text-sm">
+            <span *ngIf="project.comment; else noComment">{{ project.comment }}</span>
+            <ng-template #noComment>-</ng-template>
+          </div>
+        </div>
+      </ng-template>
+    </parteng-project-form-block>
+
+    <!----------------->
+    <!----- Goals ----->
+    <!----------------->
+
+    <parteng-project-form-related-items-block
+      [title]="'project.pageProjectForm.goalsBlock.title' | translate"
+      [addButtonLabel]="'project.pageProjectForm.goalsBlock.addGoals' | translate"
+      [items]="project.relProjectToGoals"
+      [selectedItemPreviewHTML]="goalPreviewHTML"
+      [isDisabled]="formSectionsState.isGoalsAndFoldersDisabled"
+      [isActive]="isFormSectionActive('goals')"
+      [isNew]="isNew"
+      [editIconName]="'add'"
+      [canEdit]="canEdit"
+      (addEditButtonClicked)="clickOpenGoalSelector()"
+    >
+      <!-- Selected Goal Preview -->
+      <ng-template #goalPreviewHTML let-relProjectToGoal="item" let-isDisabled="isDisabled">
+        <div class="flex items-center">
+          <!-- Goal Info -->
+          <div class="flex-auto text-sm">
+            <div class="font-semibold">{{ relProjectToGoal.goal.name }}</div>
+            <div *ngIf="relProjectToGoal.persons.length > 0">
+              <span *ngFor="let person of relProjectToGoal.persons; let isLast = last">
+                {{ person.name + (isLast ? '' : ', ') }}
+              </span>
+            </div>
+            <div class="text-xs text-neutral-500 my-2" *ngIf="relProjectToGoal.comment">
+              {{ relProjectToGoal.comment }}
+            </div>
+          </div>
+          <!-- Goal Actions -->
+          <div class="flex-none text-neutral-500">
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="'shared.dialogItemSelector.unselectItem' | translate"
+              class="ml-4"
+              [ngClass]="isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'"
+              (click)="isDisabled || openProjectGoalEnricher(relProjectToGoal)"
+              parteng-requires-permission="update"
+              parteng-requires-resource="projects"
+              >edit</mat-icon
+            >
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="'shared.dialogItemSelector.unselectItem' | translate"
+              class="ml-4"
+              [ngClass]="isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'"
+              (click)="isDisabled || removeProjectGoal(relProjectToGoal.goal)"
+              parteng-requires-permission="update"
+              parteng-requires-resource="projects"
+              >clear</mat-icon
+            >
+          </div>
+        </div>
+      </ng-template>
+    </parteng-project-form-related-items-block>
+
+    <!------------------->
+    <!----- Folders ----->
+    <!------------------->
+
+    <!-- DIV below used for anchor scrolling -->
+    <div id="projectFoldersBlock"></div>
+
+    <parteng-project-form-related-items-block
+      [title]="'project.pageProjectForm.foldersBlock.title' | translate"
+      [addButtonLabel]="'project.pageProjectForm.foldersBlock.addFolders' | translate"
+      [items]="project.folders"
+      [selectedItemPreviewHTML]="folderPreviewHTML"
+      [isDisabled]="formSectionsState.isGoalsAndFoldersDisabled"
+      [isActive]="isFormSectionActive('folders')"
+      [isNew]="isNew"
+      [editIconName]="'add'"
+      [canEdit]="canEdit && (this.permissionService.isAuthorized$('update', 'projects') | async) === true"
+      (addEditButtonClicked)="openFolderForm()"
+      (draggedItemWasDropped)="onDraggedFolderWasDropped($event)"
+    >
+      <!-- Selected Folder Preview -->
+      <ng-template #folderPreviewHTML let-folder="item" let-index="index" let-isDisabled="isDisabled">
+        <div class="flex items-center">
+          <!-- Folder Info -->
+          <div class="flex-auto text-sm">
+            <div class="font-semibold">{{ folder.name }}</div>
+            <div *ngIf="folder.relFolderToScopes.length > 0">
+              <span *ngFor="let relFolderToScope of folder.relFolderToScopes; let isLast = last">
+                {{ relFolderToScope.scope.code + (isLast ? '' : ', ') }}
+              </span>
+            </div>
+            <div class="text-xs text-neutral-500 my-2" *ngIf="folder.comment">{{ folder.comment }}</div>
+          </div>
+          <!-- Folder Actions -->
+          <div class="flex-none text-neutral-500">
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="'shared.dialogItemSelector.unselectItem' | translate"
+              class="ml-4"
+              [ngClass]="isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'"
+              (click)="isDisabled || openFolderForm({ folder, folderIndex: index })"
+              parteng-requires-permission="update"
+              parteng-requires-resource="projects"
+              >edit</mat-icon
+            >
+            <mat-icon
+              cdkDragHandle
+              aria-hidden="false"
+              [attr.aria-label]="'shared.dialogItemSelector.unselectItem' | translate"
+              class="ml-4"
+              [ngClass]="isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-move'"
+              parteng-requires-permission="update"
+              parteng-requires-resource="projects"
+              >reorder</mat-icon
+            >
+            <mat-icon
+              aria-hidden="false"
+              [attr.aria-label]="'shared.dialogItemSelector.unselectItem' | translate"
+              class="ml-4"
+              [ngClass]="isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'"
+              (click)="isDisabled || removeFolder(index)"
+              parteng-requires-permission="update"
+              parteng-requires-resource="projects"
+              >clear</mat-icon
+            >
+          </div>
+        </div>
+      </ng-template>
+    </parteng-project-form-related-items-block>
+
+    <!------------------------>
+    <!----- Form Buttons ----->
+    <!------------------------>
+
+    <div class="flex justify-end items-baseline">
+      <button type="button" mat-flat-button class="mr-4" (click)="clickCancel()">
+        {{ (form.dirty ? 'shared.buttonLabels.cancel' : 'shared.buttonLabels.goBack') | translate }}
+      </button>
+      <button
+        *ngIf="isDeletable"
+        data-testId="project-delete-button"
+        parteng-requires-permission="delete"
+        parteng-requires-resource="projects"
+        type="button"
+        mat-stroked-button
+        color="warn"
+        class="mr-4"
+        (click)="clickDelete()"
+      >
+        {{ 'project.pageProjectForm.deleteProjectBtn' | translate }}
+      </button>
+      <button
+        *ngIf="isEditable"
+        type="submit"
+        mat-raised-button
+        color="primary"
+        [disabled]="!form.dirty || isFormInvalid"
+        parteng-requires-permission="update"
+        parteng-requires-resource="projects"
+        data-testId="project-update-button"
+      >
+        {{
+          (isNew ? 'project.pageProjectForm.validateProjectBtn' : 'project.pageProjectForm.validateChangesBtn')
+            | translate
+        }}
+      </button>
+    </div>
+  </form>
+</section>

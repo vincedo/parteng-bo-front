@@ -1,0 +1,5 @@
+@use '/src/styles/variables' as v;
+
+.root-wrapper {
+  height: calc(100% - v.$parteng-site-header-height);
+}

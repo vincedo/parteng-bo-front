@@ -1,0 +1,200 @@
+<ng-container *ngIf="project">
+  <!-- PROJECT NAME -->
+  <div class="text-lg text-neutral-500">{{ 'dataEntry.project' | translate }}</div>
+  <div class="project-name grid grid-cols-6 gap-3 mb-4">
+    <div
+      class="text-lg text-black-ptg font-semibold col-span-5 p-0 underline cursor-pointer"
+      (click)="openProjectSelector()"
+    >
+      {{ project.long_name }}
+    </div>
+    <div class="text-right text-gray-500">
+      <mat-icon>{{ project.validation_status === PROJECT_NOT_REVIEWED ? 'lock_open' : 'locked' }}</mat-icon>
+    </div>
+  </div>
+  <!-- PSEUDO FOLDERS -->
+  <div class="pseudo-folders">
+    <ng-template #menuItem let-icon="icon" let-outlined="outlined" let-label="label" let-folder="folder" let-url="url">
+      <div
+        class="folder py-2 px-3 inline-flex items-center w-full mb-3 cursor-pointer"
+        [routerLink]="url"
+        routerLinkActive="selected-folder"
+      >
+        <span class="material-icons text-gray-500" [ngClass]="{ 'material-icons-outlined': !!outlined }">{{
+          icon
+        }}</span>
+        <span class="ml-2 text-xs font-semibold">{{ 'dataEntry.pageDashboard.' + label | translate }}</span>
+      </div>
+    </ng-template>
+    <ng-container
+      *ngTemplateOutlet="
+        menuItem;
+        context: {
+          icon: 'people_alt',
+          label: 'createdPersons',
+          folder: PSEUDO_FOLDER.CREATED_PERSONS,
+          url: '/data-entry/projects/' + project.id + '/folders/' + PSEUDO_FOLDER.CREATED_PERSONS + '/persons/list'
+        }
+      "
+    ></ng-container>
+    <ng-container
+      *ngTemplateOutlet="
+        menuItem;
+        context: {
+          icon: 'people_alt',
+          label: 'referencedPersons',
+          folder: PSEUDO_FOLDER.REFERENCED_PERSONS,
+          url: '/data-entry/projects/' + project.id + '/folders/' + PSEUDO_FOLDER.REFERENCED_PERSONS + '/persons/list'
+        }
+      "
+    ></ng-container>
+    <ng-container
+      *ngTemplateOutlet="
+        menuItem;
+        context: {
+          icon: 'toll',
+          label: 'updatedInstruments',
+          folder: PSEUDO_FOLDER.UPDATED_INSTRUMENTS,
+          url:
+            '/data-entry/projects/' + project.id + '/folders/' + PSEUDO_FOLDER.UPDATED_INSTRUMENTS + '/instruments/list'
+        }
+      "
+    ></ng-container>
+    <ng-container
+      *ngTemplateOutlet="
+        menuItem;
+        context: {
+          icon: 'toll',
+          label: 'referencedInstruments',
+          folder: PSEUDO_FOLDER.REFERENCED_INSTRUMENTS,
+          url:
+            '/data-entry/projects/' +
+            project.id +
+            '/folders/' +
+            PSEUDO_FOLDER.REFERENCED_INSTRUMENTS +
+            '/instruments/list'
+        }
+      "
+    ></ng-container>
+    <!-- ALL FOLDERS -->
+    <ng-container
+      *ngTemplateOutlet="
+        menuItem;
+        context: {
+          icon: 'folder_copy',
+          outlined: true,
+          label: 'allFolders',
+          folder: PSEUDO_FOLDER.ALL_FOLDERS,
+          url: '/data-entry/projects/' + project.id + '/folders/ALL_FOLDERS/transfers/list'
+        }
+      "
+    ></ng-container>
+  </div>
+  <!-- FOLDERS -->
+  <div class="folders max-h-64 overflow-auto">
+    <div *ngFor="let folder of project.folders">
+      <div
+        class="folder py-2 px-3 flex justify-between items-center w-full mb-3 cursor-pointer"
+        [routerLink]="'/data-entry/projects/' + project.id + '/folders/' + folder.id + '/transfers/list'"
+        routerLinkActive="selected-folder"
+      >
+        <div class="material-icons text-gray-500 text-left">folder</div>
+        <div class="ml-2 font-semibold text-left w-full text-xs">{{ folder.long_name }}</div>
+        <div class="material-icons text-gray-500 text-right">
+          {{ folder.validation_status === FOLDER_NOT_REVIEWED ? 'lock_open' : 'lock' }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- BUTTONS -->
+  <div class="mt-12">
+    <ng-template #addButton let-label="label" let-click="click" let-destination="destination" let-disabled="disabled">
+      <button
+        class="font-semibold p-2 pr-4 w-full rounded-lg"
+        type="button"
+        mat-raised-button
+        color="primary"
+        (click)="navigateTo(destination)"
+        [disabled]="disabled"
+      >
+        <mat-icon aria-hidden="true">add</mat-icon>
+        {{ 'dataEntry.pageDashboard.' + label | translate }}
+      </button>
+    </ng-template>
+
+    <div class="grid grid-cols-2 gap-2">
+      <!-- ADD TRANSFER BUTTON -->
+      <ng-container
+        *ngTemplateOutlet="
+          addButton;
+          context: {
+            label: 'transferBtn',
+            destination: ['transfers', 'create'],
+            disabled: !(canTransfer() && (this.permissionService.isAuthorized$('create', 'transfers') | async))
+          }
+        "
+      ></ng-container>
+      <!-- TIMELINE BUTTON -->
+      <ng-container
+        *ngTemplateOutlet="
+          addButton;
+          context: { label: 'timelineBtn', destination: ['../timeline/create'], disabled: !canPlan() }
+        "
+      ></ng-container>
+    </div>
+    <div class="grid grid-cols-2 gap-2 justify-between mt-3">
+      <!-- ADD INSTRUMENT BUTTON -->
+      <ng-container
+        *ngTemplateOutlet="
+          addButton;
+          context: {
+            label: 'instrumentBtn',
+            destination: ['../../instruments/create'],
+            disabled: !(canAddInstrument() && (this.permissionService.isAuthorized$('create', 'instruments') | async))
+          }
+        "
+      ></ng-container>
+      <!-- ADD PERSON BUTTON -->
+      <button
+        mat-raised-button
+        [matMenuTriggerFor]="menu"
+        color="primary"
+        class="font-semibold p-2 pr-4 w-full rounded-lg"
+        [disabled]="!canAddInstrument()"
+        parteng-requires-permission="create"
+        parteng-requires-resource="persons"
+      >
+        <mat-icon aria-hidden="true">add</mat-icon>
+        {{ 'dataEntry.pageDashboard.personBtn' | translate }}
+        <mat-icon aria-hidden="true">arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="openAddPersonForm(PERSON_TYPE.LEGAL_PERSON)">
+          {{ 'shared.dialogPersonSelector.createItemLegalPerson' | translate }}
+        </button>
+        <button mat-menu-item (click)="openAddPersonForm(PERSON_TYPE.NATURAL_PERSON)">
+          {{ 'shared.dialogPersonSelector.createItemNaturalPerson' | translate }}
+        </button>
+        <button mat-menu-item (click)="openAddPersonForm(PERSON_TYPE.INVESTMENT_FUND)">
+          {{ 'shared.dialogPersonSelector.createItemInvestmentFund' | translate }}
+        </button>
+      </mat-menu>
+    </div>
+    <div class="mt-3">
+      <!-- ADD INSTRUMENT VERSION BUTTON -->
+      <button
+        class="font-semibold p-2 pr-4 w-full rounded-lg"
+        type="button"
+        mat-raised-button
+        color="primary"
+        (click)="addInstrumentVersion()"
+        [disabled]="!canAddInstrumentVersion()"
+        parteng-requires-permission="create"
+        parteng-requires-resource="instrument-versions"
+      >
+        <mat-icon aria-hidden="true">add</mat-icon>
+        {{ 'dataEntry.pageDashboard.instrumentVersionBtn' | translate }}
+      </button>
+    </div>
+  </div>
+</ng-container>

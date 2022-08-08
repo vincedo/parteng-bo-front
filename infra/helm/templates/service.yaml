@@ -1,0 +1,28 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: svc-{{ template "app.name" . }}
+  labels:
+    heritage: {{ .Release.Service | quote }}
+    release: {{ .Release.Name | quote }}
+    chart: {{ .Chart.Name }}
+    app: {{ template "app.name" . }}
+    {{- if .Values.service.labels }}
+    {{ toYaml .Values.service.labels | indent 4}}
+    {{- end }}
+  annotations:
+    {{ toYaml .Values.service.annotations | indent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  selector:
+    release: {{ .Release.Name | quote }}
+    app: {{ template "app.name" . }}
+    chart: {{ .Chart.Name }}
+  ports:
+    - name: {{ .Values.service.httpPortName | default "http" }}
+      port: {{ .Values.httpPort }}
+      protocol: TCP
+      {{- if .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}

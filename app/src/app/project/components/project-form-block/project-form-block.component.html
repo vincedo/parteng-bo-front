@@ -1,0 +1,39 @@
+<section
+  class="project-form-block relative p-6 pb-4 mb-5 rounded-[10px] border"
+  [ngClass]="{ 'bg-gray-ptg-2': isDisabled, 'border-blue-ptg-secondary': isActive, 'border-neutral-200': !isActive }"
+>
+  <!-- "disabled" overlay -->
+  <!--
+  <div *ngIf="isDisabled" class="absolute top-0 left-0 z-10 w-full h-full bg-white opacity-50"></div>
+  -->
+
+  <div class="flex justify-between">
+    <h2 class="text-lg text-black-ptg font-semibold pl-3 border-l-[3px] border-blue-ptg-primary-800">
+      {{ title }}
+    </h2>
+    <div *ngIf="!isDisabled && numItems > 0">
+      <div *ngIf="!isEditMode" (click)="edit()" class="text-xl text-neutral-500" [class.cursor-pointer]="canEdit">
+        <mat-icon
+          parteng-requires-permission="update"
+          parteng-requires-resource="projects"
+          aria-hidden="false"
+          [attr.aria-label]="'project.pageProjectForm.editBlockIconAriaLabel' | translate"
+          [inline]="true"
+          >{{ editIconName }}</mat-icon
+        >
+      </div>
+      <div *ngIf="isEditMode" (click)="cancelEdit()" class="text-sm text-neutral-500 cursor-pointer">
+        {{ 'project.pageProjectForm.editBlockCancel' | translate }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Area - START -->
+  <div *ngIf="isDisabled && numItems === 0; else showContent" class="text-sm italic">
+    {{ 'project.pageProjectForm.editingInstructions.howToAccessThisStep' | translate }}
+  </div>
+  <ng-template #showContent>
+    <ng-content></ng-content>
+  </ng-template>
+  <!-- Content Area - END -->
+</section>

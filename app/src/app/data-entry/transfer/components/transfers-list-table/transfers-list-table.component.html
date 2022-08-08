@@ -1,0 +1,132 @@
+<table
+  mat-table
+  [dataSource]="dataSource"
+  matSort
+  [trackBy]="trackTransferById"
+  [fixedLayout]="true"
+  class="w-full transfers-list-table"
+>
+  <!-- COLUMN Templates (TH/TD) -->
+  <!-- ID -->
+  <ng-container matColumnDef="id">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-blue-ptg-secondary-500 w-[80px]">
+      {{ 'dataEntry.pageTransfersList.transfersTable.columnId' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let transfer" class="text-xs overflow-hidden">
+      {{ transfer.id }}
+    </td>
+  </ng-container>
+  <!-- Date -->
+  <ng-container matColumnDef="date">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-blue-ptg-secondary-500 w-[100px]">
+      {{ 'dataEntry.pageTransfersList.transfersTable.columnDate' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let transfer" class="text-xs">
+      {{ transfer.date | date: 'shortDate' }}
+    </td>
+  </ng-container>
+  <!-- Transfer Type -->
+  <ng-container matColumnDef="transferTypeStr">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-blue-ptg-secondary-500">
+      {{ 'dataEntry.pageTransfersList.transfersTable.columnTransferType' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let transfer" class="text-xs">
+      {{ transfer.transferTypeStr }}
+    </td>
+  </ng-container>
+  <!-- Instruments -->
+  <ng-container matColumnDef="instruments">
+    <th mat-header-cell *matHeaderCellDef class="text-blue-ptg-secondary-500">
+      {{ 'dataEntry.pageTransfersList.transfersTable.columnInstruments' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let transfer" class="text-xs">
+      <!-- whitespace-nowrap -->
+      <ng-container *ngFor="let transferInstrument of transfer.instruments; let isLast = last">
+        <span class="text-blue-ptg-primary-500">{{ transferInstrument.designation }} :</span>
+        {{ transferInstrument.name }}<br *ngIf="!isLast" />
+      </ng-container>
+    </td>
+  </ng-container>
+  <!-- Quantities -->
+  <ng-container matColumnDef="quantities">
+    <th mat-header-cell *matHeaderCellDef class="text-blue-ptg-secondary-500">
+      {{ 'dataEntry.pageTransfersList.transfersTable.columnQuantities' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let transfer" class="text-xs whitespace-nowrap">
+      <ng-container *ngFor="let transferQuantity of transfer.quantities; let isLast = last">
+        <span class="text-blue-ptg-primary-500">{{ transferQuantity.designation }} :</span> {{ transferQuantity.value
+        }}<br *ngIf="!isLast" />
+      </ng-container>
+    </td>
+  </ng-container>
+  <!-- Persons -->
+  <ng-container matColumnDef="persons">
+    <th mat-header-cell *matHeaderCellDef class="text-blue-ptg-secondary-500">
+      {{ 'dataEntry.pageTransfersList.transfersTable.columnPersons' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let transfer" class="text-xs whitespace-nowrap">
+      <ng-container *ngFor="let transfPerson of transfer.persons; let isLast = last">
+        <span class="text-blue-ptg-primary-500">{{ transfPerson.personQualityId | personQuality }} :</span>
+        {{ transfPerson.name }}<br *ngIf="!isLast" />
+      </ng-container>
+    </td>
+  </ng-container>
+  <!-- Source -->
+  <ng-container matColumnDef="source">
+    <th
+      mat-header-cell
+      *matHeaderCellDef
+      mat-sort-header
+      class="text-blue-ptg-secondary-500"
+      [class.hidden]="showFolderColumn"
+    >
+      {{ 'dataEntry.pageTransfersList.transfersTable.columnSource' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let transfer" class="text-xs" [class.hidden]="showFolderColumn">
+      {{ transfer.dataSourceStr }}
+    </td>
+  </ng-container>
+  <!-- Parent Folder -->
+  <!-- NB. This matColumnDef must always be in the DOM even. It's hidden with CSS. -->
+  <ng-container matColumnDef="folder">
+    <th
+      mat-header-cell
+      *matHeaderCellDef
+      mat-sort-header
+      class="text-blue-ptg-secondary-500"
+      [class.hidden]="!showFolderColumn"
+    >
+      {{ 'dataEntry.pageTransfersList.transfersTable.columnFolder' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let transfer" class="text-xs" [class.hidden]="!showFolderColumn">
+      {{ transfer.parentFolderName }}
+    </td>
+  </ng-container>
+  <!-- Validation Status -->
+  <ng-container matColumnDef="validation_status">
+    <th mat-header-cell *matHeaderCellDef class="text-blue-ptg-secondary-500 w-[50px]">
+      {{ 'dataEntry.pageTransfersList.transfersTable.columnStatus' | translate }}
+    </th>
+    <td mat-cell *matCellDef="let transfer" class="text-xl text-neutral-400">
+      <mat-icon
+        aria-hidden="false"
+        [inline]="true"
+        [matTooltip]="
+          (isValidated(transfer) ? 'shared.tooltips.tooltipValidated' : 'shared.tooltips.tooltipNotValidated')
+            | translate
+        "
+        >{{ isValidated(transfer) ? 'lock' : 'lock_open' }}</mat-icon
+      >
+    </td>
+  </ng-container>
+
+  <!-- ROW Templates (TR) -->
+  <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+  <tr
+    mat-row
+    *matRowDef="let row; columns: displayedColumns"
+    (click)="clickRow(row)"
+    class="select-none cursor-pointer"
+    [class.bg-neutral-100]="isSelected(row)"
+  ></tr>
+</table>

@@ -1,0 +1,15 @@
+<form [formGroup]="form">
+  <div class="mb-4">
+    <div class="text-sm font-semibold my-2">{{ 'project.dialogGoalEnricher.personsLabel' | translate }}</div>
+    <parteng-person-selector-widget
+      [relProjectToGoal]="relProjectToGoal"
+      (personsChanged)="onPersonsChanged($event)"
+    ></parteng-person-selector-widget>
+  </div>
+  <div>
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>{{ 'project.dialogGoalEnricher.commentLabel' | translate }}</mat-label>
+      <textarea matInput formControlName="comment" rows="5"></textarea>
+    </mat-form-field>
+  </div>
+</form>

@@ -1,0 +1,26 @@
+<div class="h-full flex flex-col">
+  <parteng-error-block [error]="backendError"></parteng-error-block>
+  <!-- Filters -->
+  <div class="flex-none">
+    <parteng-projects-list-filters
+      [textFilter]="textFilter"
+      [statusFilter]="statusFilter"
+      (textFilterChanged)="onTextFilterChanged($event)"
+      (statusFilterChanged)="onStatusFilterChanged($event)"
+    ></parteng-projects-list-filters>
+  </div>
+  <!-- List of Projects -->
+  <div class="flex-auto overflow-y-auto min-h-[200px] mb-1">
+    <parteng-projects-list-table
+      [projects]="filteredProjectItems"
+      [highlightedProject]="highlightedProject"
+      (rowClicked)="onProjectClicked($event)"
+    ></parteng-projects-list-table>
+  </div>
+  <!-- Highlighted Project -->
+  <div class="flex-none h-[135px]">
+    <parteng-projects-list-highlighted-project
+      [project]="highlightedProject"
+    ></parteng-projects-list-highlighted-project>
+  </div>
+</div>
